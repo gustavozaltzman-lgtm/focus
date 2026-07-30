@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes';
 import contextRoutes from './context.routes';
+import reminderRoutes from './reminder.routes';
 import taskRoutes from './task.routes';
 import webauthnRoutes from './webauthn.routes';
 
@@ -13,6 +14,7 @@ router.get('/health', (_req, res) => {
 router.use('/auth', authRoutes);
 router.use('/contexts', contextRoutes);
 router.use('/tasks', taskRoutes);
+router.use('/reminders', reminderRoutes);
 router.use('/webauthn', webauthnRoutes);
 
 export default router;

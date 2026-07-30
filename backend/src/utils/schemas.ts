@@ -66,6 +66,19 @@ export const webauthnAuthVerifySchema = z.object({
   response: z.record(z.any()),
 });
 
+export const createReminderSchema = z.object({
+  taskId: z.string().uuid(),
+  triggerAt: z.string().min(1),
+});
+
+export const snoozeReminderSchema = z.object({
+  minutes: z.number().int().min(1).max(10080),
+});
+
+export const reminderQuerySchema = z.object({
+  taskId: z.string().uuid(),
+});
+
 export const taskQuerySchema = z.object({
   status: statusEnum.optional(),
   contextId: z.string().uuid().optional(),

@@ -3,6 +3,7 @@ import { Task, TaskPriority, TaskStatus } from '../../types/domain';
 import { Modal } from '../ui/Modal';
 import { useContexts } from '../../hooks/useContexts';
 import { useCreateTask, useDeleteTask, useUpdateTask } from '../../hooks/useTasks';
+import { TaskReminders } from '../reminders/TaskReminders';
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
   { value: 'inbox', label: 'Inbox' },
@@ -225,6 +226,8 @@ export function TaskFormModal({
             ))}
           </select>
         </div>
+
+        {task && <TaskReminders taskId={task.id} />}
 
         {error && <p className="text-sm text-urgent">{error}</p>}
 
