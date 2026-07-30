@@ -18,26 +18,57 @@ const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
   { value: 'high', label: 'Alta' },
 ];
 
+export interface TaskDraft {
+  title?: string;
+  description?: string | null;
+  contextId?: string | null;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  scheduledDate?: string | null;
+  scheduledTime?: string | null;
+}
+
 interface TaskFormModalProps {
   task?: Task;
+  initialValues?: TaskDraft;
   defaultContextId?: string;
   defaultStatus?: TaskStatus;
+  title_?: string;
   onClose: () => void;
 }
 
-export function TaskFormModal({ task, defaultContextId, defaultStatus, onClose }: TaskFormModalProps) {
+export function TaskFormModal({
+  task,
+  initialValues,
+  defaultContextId,
+  defaultStatus,
+  title_,
+  onClose,
+}: TaskFormModalProps) {
   const { data: contexts = [] } = useContexts();
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
 
-  const [title, setTitle] = useState(task?.title ?? '');
-  const [description, setDescription] = useState(task?.description ?? '');
-  const [contextId, setContextId] = useState(task?.context_id ?? defaultContextId ?? '');
-  const [status, setStatus] = useState<TaskStatus>(task?.status ?? defaultStatus ?? 'inbox');
-  const [priority, setPriority] = useState<TaskPriority>(task?.priority ?? 'medium');
-  const [scheduledDate, setScheduledDate] = useState(task?.scheduled_date ?? '');
-  const [scheduledTime, setScheduledTime] = useState(task?.scheduled_time ?? '');
+  const [title, setTitle] = useState(task?.title ?? initialValues?.title ?? '');
+  const [description, setDescription] = useState(
+    task?.description ?? initialValues?.description ?? '',
+  );
+  const [contextId, setContextId] = useState(
+    task?.context_id ?? initialValues?.contextId ?? defaultContextId ?? '',
+  );
+  const [status, setStatus] = useState<TaskStatus>(
+    task?.status ?? initialValues?.status ?? defaultStatus ?? 'inbox',
+  );
+  const [priority, setPriority] = useState<TaskPriority>(
+    task?.priority ?? initialValues?.priority ?? 'medium',
+  );
+  const [scheduledDate, setScheduledDate] = useState(
+    task?.scheduled_date ?? initialValues?.scheduledDate ?? '',
+  );
+  const [scheduledTime, setScheduledTime] = useState(
+    task?.scheduled_time ?? initialValues?.scheduledTime ?? '',
+  );
   const [error, setError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -81,7 +112,7 @@ export function TaskFormModal({ task, defaultContextId, defaultStatus, onClose }
   }
 
   return (
-    <Modal title={task ? 'Editar tarea' : 'Nueva tarea'} onClose={onClose}>
+    <Modal title={title_ ?? (task ? 'Editar tarea' : 'Nueva tarea')} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="task-title" className="mb-1.5 block text-sm font-medium text-ink-950">

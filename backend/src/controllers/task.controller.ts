@@ -39,6 +39,14 @@ export const quickCapture = asyncHandler(async (req: AuthenticatedRequest, res: 
   res.status(201).json({ task });
 });
 
+export const previewCapture = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const preview = await taskService.previewCaptureFromNaturalLanguage(
+    requireUserId(req),
+    req.body.text,
+  );
+  res.status(200).json({ preview });
+});
+
 export const updateTask = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const task = await taskService.updateTask(req.params.id, requireUserId(req), req.body);
   res.status(200).json({ task });

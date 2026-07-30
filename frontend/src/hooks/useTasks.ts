@@ -32,6 +32,14 @@ export function useQuickCapture() {
   });
 }
 
+export function usePreviewCapture() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: tasksApi.previewCapture,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['contexts'] }),
+  });
+}
+
 export function useCreateTask() {
   const invalidate = useInvalidateTasks();
   return useMutation({

@@ -59,33 +59,60 @@ export async function createTask(userId: string, input: CreateTaskInput): Promis
   return task;
 }
 
+async function resolveParsedContext(
+  userId: string,
+  contextId: string | null,
+  contextName: string | null,
+): Promise<string | null> {
+  if (contextId) return contextId;
+  if (!contextName) return null;
+  const created = await createContextRecord(userId, { name: contextName, colorHex: '#92400E' });
+  return created.id;
+}
+
+export interface CapturePreview {
+  title: string;
+  description: string | null;
+  contextId: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  scheduledDate: string | null;
+  scheduledTime: string | null;
+}
+
+export async function previewCaptureFromNaturalLanguage(
+  userId: string,
+  rawInput: string,
+): Promise<CapturePreview> {
+  const contexts = await contextRepo.listContexts(userId);
+  const parsed = await parser.parse(rawInput, contexts);
+  const contextId = await resolveParsedContext(userId, parsed.contextId, parsed.contextName);
+
+  return {
+    title: parsed.title,
+    description: null,
+    contextId,
+    status: parsed.scheduledDate ? 'today' : 'inbox',
+    priority: parsed.priority,
+    scheduledDate: parsed.scheduledDate,
+    scheduledTime: parsed.scheduledTime,
+  };
+}
+
 export async function createTaskFromNaturalLanguage(
   userId: string,
   rawInput: string,
 ): Promise<Task> {
-  const contexts = await contextRepo.listContexts(userId);
-  const parsed = await parser.parse(rawInput, contexts);
-
-  let contextId = parsed.contextId;
-  if (!contextId && parsed.contextName) {
-    const created = await createContextRecord(userId, {
-      name: parsed.contextName,
-      colorHex: '#6366F1',
-    });
-    contextId = created.id;
-  }
-
-  const status: TaskStatus = parsed.scheduledDate ? 'today' : 'inbox';
-
+  const preview = await previewCaptureFromNaturalLanguage(userId, rawInput);
   const task = await taskRepo.createTask({
     userId,
-    contextId,
-    title: parsed.title,
-    description: null,
-    status,
-    priority: parsed.priority,
-    scheduledDate: parsed.scheduledDate,
-    scheduledTime: parsed.scheduledTime,
+    contextId: preview.contextId,
+    title: preview.title,
+    description: preview.description,
+    status: preview.status,
+    priority: preview.priority,
+    scheduledDate: preview.scheduledDate,
+    scheduledTime: preview.scheduledTime,
   });
   await logActivity({ userId, taskId: task.id, action: 'created_via_capture' });
   return task;

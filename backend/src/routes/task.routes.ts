@@ -18,6 +18,7 @@ router.get('/', validateQuery(taskQuerySchema), taskController.listTasks);
 router.get('/:id', taskController.getTask);
 router.post('/', validateBody(createTaskSchema), taskController.createTask);
 router.post('/capture', validateBody(quickCaptureSchema), taskController.quickCapture);
+router.post('/capture/preview', validateBody(quickCaptureSchema), taskController.previewCapture);
 router.patch('/:id', validateBody(updateTaskSchema), taskController.updateTask);
 router.delete('/:id', taskController.deleteTask);
 

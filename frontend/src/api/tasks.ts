@@ -24,6 +24,23 @@ export async function quickCapture(text: string): Promise<Task> {
   return data.task;
 }
 
+export interface CapturePreview {
+  title: string;
+  description: string | null;
+  contextId: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  scheduledDate: string | null;
+  scheduledTime: string | null;
+}
+
+export async function previewCapture(text: string): Promise<CapturePreview> {
+  const { data } = await apiClient.post<{ preview: CapturePreview }>('/tasks/capture/preview', {
+    text,
+  });
+  return data.preview;
+}
+
 export interface CreateTaskPayload {
   title: string;
   description?: string | null;
