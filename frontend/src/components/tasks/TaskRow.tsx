@@ -1,0 +1,57 @@
+import { Context, Task } from '../../types/domain';
+import { PriorityDot } from '../ui/PriorityDot';
+import { ContextChip } from '../ui/ContextChip';
+
+interface TaskRowProps {
+  task: Task;
+  context?: Context;
+  onToggleComplete: (task: Task) => void;
+}
+
+export function TaskRow({ task, context, onToggleComplete }: TaskRowProps) {
+  const isCompleted = task.status === 'completed';
+
+  return (
+    <div className="group flex items-center gap-3 border-b border-mist-100 px-1 py-3 last:border-b-0">
+      <button
+        onClick={() => onToggleComplete(task)}
+        aria-label={isCompleted ? 'Marcar como pendiente' : 'Completar tarea'}
+        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
+          isCompleted
+            ? 'border-calm bg-calm text-white'
+            : 'border-mist-300 group-hover:border-ink-950'
+        }`}
+      >
+        {isCompleted && (
+          <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none">
+            <path
+              d="M2 6.5L4.5 9L10 3"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
+      </button>
+
+      <div className="min-w-0 flex-1">
+        <p className={`truncate text-[15px] ${isCompleted ? 'text-mist-400 line-through' : 'text-ink-950'}`}>
+          {task.title}
+        </p>
+        <div className="mt-1 flex items-center gap-2 text-xs text-mist-400">
+          {task.scheduled_date && <span>{formatDate(task.scheduled_date)}</span>}
+          {task.scheduled_time && <span>{task.scheduled_time}</span>}
+          {context && <ContextChip name={context.name} colorHex={context.color_hex} />}
+        </div>
+      </div>
+
+      <PriorityDot priority={task.priority} />
+    </div>
+  );
+}
+
+function formatDate(isoDate: string): string {
+  const date = new Date(`${isoDate}T00:00:00`);
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+}

@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  ::selection {
+    background: theme('colors.accent.soft');
+    color: theme('colors.accent.DEFAULT');
+  }
+}
+
+@layer components {
+  .focus-input {
+    @apply w-full rounded-xl border border-mist-200 bg-white px-4 py-3 text-[15px] text-ink-950 placeholder:text-mist-400 outline-none transition focus:border-accent focus:ring-4 focus:ring-accent-soft;
+  }
+
+  .focus-card {
+    @apply rounded-xl2 border border-mist-200 bg-white shadow-soft;
+  }
+
+  .focus-btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl bg-ink-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ink-800 active:scale-[0.98] disabled:opacity-40;
+  }
+
+  .focus-btn-ghost {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium text-mist-500 transition hover:bg-mist-100 hover:text-ink-950;
+  }
+}
