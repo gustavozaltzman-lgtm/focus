@@ -24,12 +24,13 @@ export function TaskList({ tasks, contexts, emptyLabel, hideContextChip }: TaskL
         </div>
       ) : (
         <div className="focus-card px-4">
-          {tasks.map((task) => (
+          {tasks.map((task, index) => (
             <TaskRow
               key={task.id}
               task={task}
               context={task.context_id ? contextById.get(task.context_id) : undefined}
               hideContextChip={hideContextChip}
+              animationDelayMs={Math.min(index, 8) * 35}
               onToggleComplete={(t) => completeTask.mutate(t.id)}
               onEdit={setEditingTask}
             />

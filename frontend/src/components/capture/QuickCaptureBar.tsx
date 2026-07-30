@@ -41,7 +41,9 @@ export function QuickCaptureBar() {
         <button
           type="submit"
           disabled={!text.trim() || previewCapture.isPending}
-          className="focus-btn-primary shrink-0 px-3.5 sm:px-4"
+          className={`focus-btn-primary shrink-0 px-3.5 sm:px-4 ${
+            text.trim() && !previewCapture.isPending ? 'animate-pulse-glow' : ''
+          }`}
         >
           {previewCapture.isPending ? '…' : 'Agregar'}
         </button>

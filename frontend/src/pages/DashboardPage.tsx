@@ -68,36 +68,22 @@ export function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
-        <StatTile
-          label="Urgentes"
-          value={summary?.urgentCount ?? 0}
-          accentClassName="text-urgent"
-          onClick={() => setStatFilter('urgent')}
-        />
-        <StatTile
-          label="Programadas"
-          value={summary?.scheduledCount ?? 0}
-          accentClassName="text-warn"
-          onClick={() => setStatFilter('scheduled')}
-        />
-        <StatTile
-          label="Ideas"
-          value={summary?.inboxCount ?? 0}
-          accentClassName="text-mist-500"
-          onClick={() => setStatFilter('inbox')}
-        />
-        <StatTile
-          label="Vencidas"
-          value={summary?.overdueCount ?? 0}
-          accentClassName="text-urgent"
-          onClick={() => setStatFilter('overdue')}
-        />
-        <StatTile
-          label="Resueltas"
-          value={summary?.completedThisWeekCount ?? 0}
-          accentClassName="text-calm"
-          onClick={() => setStatFilter('completedWeek')}
-        />
+        {[
+          { label: 'Urgentes', value: summary?.urgentCount ?? 0, accent: 'text-urgent', filter: 'urgent' as const },
+          { label: 'Programadas', value: summary?.scheduledCount ?? 0, accent: 'text-warn', filter: 'scheduled' as const },
+          { label: 'Ideas', value: summary?.inboxCount ?? 0, accent: 'text-mist-500', filter: 'inbox' as const },
+          { label: 'Vencidas', value: summary?.overdueCount ?? 0, accent: 'text-urgent', filter: 'overdue' as const },
+          { label: 'Resueltas', value: summary?.completedThisWeekCount ?? 0, accent: 'text-calm', filter: 'completedWeek' as const },
+        ].map((tile, index) => (
+          <div key={tile.filter} className="animate-fade-in-up" style={{ animationDelay: `${index * 45}ms` }}>
+            <StatTile
+              label={tile.label}
+              value={tile.value}
+              accentClassName={tile.accent}
+              onClick={() => setStatFilter(tile.filter)}
+            />
+          </div>
+        ))}
       </div>
 
       <div>

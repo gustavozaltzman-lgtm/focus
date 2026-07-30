@@ -14,6 +14,7 @@
     "@simplewebauthn/types": "^10.0.0",
     "@tanstack/react-query": "^5.51.1",
     "axios": "^1.7.2",
+    "framer-motion": "^12.43.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.25.1"
