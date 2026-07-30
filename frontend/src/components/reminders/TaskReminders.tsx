@@ -11,18 +11,31 @@ function formatReminder(isoDateTime: string): string {
   });
 }
 
+function toLocalDateTimeInputValue(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 export function TaskReminders({ taskId }: { taskId: string }) {
   const { data: reminders = [] } = useRemindersForTask(taskId);
   const createReminder = useCreateReminder(taskId);
   const deleteReminder = useDeleteReminder(taskId);
   const [newTriggerAt, setNewTriggerAt] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const pending = reminders.filter((r) => r.status !== 'sent');
+  const minDateTime = toLocalDateTimeInputValue(new Date());
 
   function handleAdd() {
     if (!newTriggerAt) return;
+    setError(null);
+    if (new Date(newTriggerAt).getTime() <= Date.now()) {
+      setError('Elegí una fecha y hora futura: si ya pasó, se marca como vista al instante.');
+      return;
+    }
     createReminder.mutate(new Date(newTriggerAt).toISOString(), {
       onSuccess: () => setNewTriggerAt(''),
+      onError: () => setError('No se pudo guardar el recordatorio. Probá de nuevo.'),
     });
   }
 
@@ -51,7 +64,11 @@ export function TaskReminders({ taskId }: { taskId: string }) {
         <input
           type="datetime-local"
           value={newTriggerAt}
-          onChange={(e) => setNewTriggerAt(e.target.value)}
+          min={minDateTime}
+          onChange={(e) => {
+            setNewTriggerAt(e.target.value);
+            setError(null);
+          }}
           className="focus-input figures py-2 text-sm"
         />
         <button
@@ -63,6 +80,7 @@ export function TaskReminders({ taskId }: { taskId: string }) {
           + Avisar
         </button>
       </div>
+      {error && <p className="mt-1.5 text-xs text-urgent">{error}</p>}
     </div>
   );
 }

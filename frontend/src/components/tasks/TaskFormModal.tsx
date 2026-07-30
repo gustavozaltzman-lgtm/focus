@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react';
+import { isAxiosError } from 'axios';
 import { Task, TaskPriority, TaskStatus } from '../../types/domain';
 import { Modal } from '../ui/Modal';
 import { useContexts } from '../../hooks/useContexts';
@@ -102,8 +103,9 @@ export function TaskFormModal({
         await createTask.mutateAsync(payload);
       }
       onClose();
-    } catch {
-      setError('No se pudo guardar la tarea.');
+    } catch (err) {
+      const serverMessage = isAxiosError(err) ? err.response?.data?.error : undefined;
+      setError(serverMessage ?? 'No se pudo guardar la tarea. Revisá tu conexión e intentá de nuevo.');
     }
   }
 
