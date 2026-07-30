@@ -1,9 +1,9 @@
 import { TaskPriority } from '../../types/domain';
 
 const COLORS: Record<TaskPriority, string> = {
-  high: 'bg-urgent',
-  medium: 'bg-warn',
-  low: 'bg-[#0EA5E9]',
+  high: 'bg-signal',
+  medium: 'bg-sun',
+  low: 'bg-[#93C5FD]',
 };
 
 const LABELS: Record<TaskPriority, string> = {

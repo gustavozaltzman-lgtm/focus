@@ -39,11 +39,11 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ink-950 px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-paper px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <p className="text-3xl font-bold tracking-tight text-white">Focus</p>
-          <p className="mt-2 text-sm text-signal-light">Tu segundo cerebro, sin fricción.</p>
+          <p className="text-3xl font-bold tracking-tight text-ink-950">Focus</p>
+          <p className="mt-2 text-sm font-medium text-signal">Tu segundo cerebro, sin fricción.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="focus-card space-y-3 p-6">
@@ -98,12 +98,12 @@ export function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-mist-400/70">
+        <p className="mt-4 text-center text-sm text-mist-500">
           {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
           <button
             type="button"
             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-            className="font-medium text-white hover:underline"
+            className="font-medium text-signal hover:underline"
           >
             {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
           </button>

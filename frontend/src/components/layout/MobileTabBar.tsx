@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 
 const tabBase = 'flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-mist-400';
-const tabActive = 'text-ink-950';
+const tabActive = 'text-signal';
 
 export function MobileTabBar() {
   return (

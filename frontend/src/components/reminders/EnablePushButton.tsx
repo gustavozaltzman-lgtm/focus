@@ -40,7 +40,7 @@ export function EnablePushButton({ className }: { className?: string }) {
       disabled={status === 'working' || status === 'done'}
       className={
         className ??
-        'w-full rounded-lg px-2 py-1.5 text-left text-xs font-medium text-mist-400/70 transition hover:bg-white/5 hover:text-white disabled:opacity-60'
+        'w-full rounded-lg px-2 py-1.5 text-left text-xs font-medium text-mist-500 transition hover:bg-mist-100 hover:text-ink-950 disabled:opacity-60'
       }
     >
       {label}
