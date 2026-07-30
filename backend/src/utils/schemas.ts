@@ -79,6 +79,10 @@ export const reminderQuerySchema = z.object({
   taskId: z.string().uuid(),
 });
 
+export const shareContextSchema = z.object({
+  email: z.string().email(),
+});
+
 export const taskQuerySchema = z.object({
   status: statusEnum.optional(),
   contextId: z.string().uuid().optional(),

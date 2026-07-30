@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useContexts } from '../../hooks/useContexts';
+import { useSharedWithMe } from '../../hooks/useContextShares';
 import { useUpdateTask } from '../../hooks/useTasks';
 import { EnableBiometricButton } from '../auth/EnableBiometricButton';
 import { DropNavLink } from './DropNavLink';
@@ -12,6 +13,7 @@ const linkActive = 'bg-white/10 text-white shadow-[inset_3px_0_0_0_#D9A441]';
 export function Sidebar() {
   const { user, logout } = useAuth();
   const { data: contexts = [] } = useContexts();
+  const { data: sharedContexts = [] } = useSharedWithMe();
   const updateTask = useUpdateTask();
 
   return (
@@ -99,6 +101,29 @@ export function Sidebar() {
             </DropNavLink>
           ))}
         </nav>
+
+        {sharedContexts.length > 0 && (
+          <>
+            <p className="mb-2 mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-mist-400/50">
+              Compartido conmigo
+            </p>
+            <nav className="flex flex-col gap-1">
+              {sharedContexts.map((shared) => (
+                <NavLink
+                  key={shared.id}
+                  to={`/shared/${shared.id}`}
+                  className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}
+                >
+                  <span
+                    className="h-2 w-2 shrink-0 rounded-full"
+                    style={{ backgroundColor: shared.color_hex }}
+                  />
+                  <span className="truncate">{shared.name}</span>
+                </NavLink>
+              ))}
+            </nav>
+          </>
+        )}
       </div>
 
       <div className="space-y-3 px-2">

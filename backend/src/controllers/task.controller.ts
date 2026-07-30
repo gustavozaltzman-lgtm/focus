@@ -26,6 +26,11 @@ export const getTask = asyncHandler(async (req: AuthenticatedRequest, res: Respo
   res.status(200).json({ task });
 });
 
+export const getTaskActivity = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const activity = await taskService.getTaskActivity(req.params.id, requireUserId(req));
+  res.status(200).json({ activity });
+});
+
 export const createTask = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const task = await taskService.createTask(requireUserId(req), req.body);
   res.status(201).json({ task });

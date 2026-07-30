@@ -43,6 +43,25 @@ Body parcial: `{ "name"?, "colorHex"? }`
 ### `DELETE /contexts/:id`
 204 sin contenido.
 
+### `POST /contexts/:id/shares`
+Compartir de solo lectura con otro usuario (debe existir). Body: `{ "email": "..." }`
+201 → `{ "share": { ... } }`. 404 si el email no está registrado, 409 si ya está compartido.
+
+### `GET /contexts/:id/shares`
+Lista quién tiene acceso a un contexto propio.
+200 → `{ "shares": [{ "shared_with_email", "shared_with_name", ... }] }`
+
+### `DELETE /contexts/:id/shares/:shareId`
+Revoca un acceso compartido. 204 sin contenido.
+
+### `GET /contexts/shared-with-me`
+Contextos que otros usuarios compartieron con vos.
+200 → `{ "contexts": [{ "id", "name", "color_hex", "owner_name" }] }`
+
+### `GET /contexts/:id/shared-view`
+Vista de solo lectura de un contexto (propio o compartido).
+200 → `{ "context": {...}, "isOwner": bool, "ownerName": "...", "tasks": [...] }`
+
 ## Tasks
 
 ### `GET /tasks`
@@ -80,18 +99,56 @@ Body:
 Todos los campos salvo `title` son opcionales. 201 → `{ "task": { ... } }`
 
 ### `POST /tasks/capture`
-Captura rápida en lenguaje natural. Body: `{ "text": "Enviar reporte de costos a CDI el viernes prioridad alta" }`
-El servidor interpreta contexto, fecha y prioridad automáticamente (ver
-`ai-parser.service.ts`), crea el contexto si no existe, y guarda la tarea.
+Captura rápida en lenguaje natural: interpreta y **guarda directo**. Body:
+`{ "text": "Enviar reporte de costos a CDI el viernes prioridad alta" }`
 201 → `{ "task": { ... } }`
 
+### `POST /tasks/capture/preview`
+Igual interpretación (crea el contexto si hace falta) pero **sin crear la
+tarea** — pensado para mostrar una confirmación editable antes de guardar.
+200 → `{ "preview": { "title", "contextId", "status", "priority", "scheduledDate", "scheduledTime" } }`
+
+### `GET /tasks/:id/activity`
+Historial de auditoría de una tarea (más reciente primero, máx 50).
+200 → `{ "activity": [{ "action", "created_at", ... }] }`
+
 ### `PATCH /tasks/:id`
-Body parcial, mismos campos que create. Marcar `status: "completed"` setea
-`completed_at` automáticamente.
+Body parcial, mismos campos que create. Un campo **ausente** no se toca; un
+campo enviado explícitamente como `null` se limpia (ej. quitar el contexto o
+la fecha). Marcar `status: "completed"` setea `completed_at` automáticamente.
 200 → `{ "task": { ... } }`
 
 ### `DELETE /tasks/:id`
 204 sin contenido.
+
+## Reminders
+
+### `POST /reminders`
+Body: `{ "taskId": "uuid", "triggerAt": "2026-08-05T14:00:00.000Z" }`
+201 → `{ "reminder": { ... } }`
+
+### `GET /reminders?taskId=uuid`
+200 → `{ "reminders": [...] }`
+
+### `GET /reminders/due`
+Recordatorios pendientes ya vencidos del usuario (para polling del frontend).
+200 → `{ "reminders": [{ "task_title", "trigger_at", ... }] }`
+
+### `POST /reminders/:id/dismiss`
+Marca como `sent`. 200 → `{ "reminder": { ... } }`
+
+### `POST /reminders/:id/snooze`
+Body: `{ "minutes": 30 }`. Reprograma `trigger_at` y vuelve a `pending`.
+200 → `{ "reminder": { ... } }`
+
+### `DELETE /reminders/:id`
+204 sin contenido.
+
+## WebAuthn (passkeys)
+
+Ver [ARCHITECTURE.md](./ARCHITECTURE.md#autenticación-biométrica-webauthn):
+`GET/POST /webauthn/register/options|verify`, `GET /webauthn/devices`,
+`POST /webauthn/login/options|verify`.
 
 ## Errores
 

@@ -45,6 +45,19 @@ export async function listTasks(userId: string, filters: TaskFilters): Promise<T
   return result.rows;
 }
 
+export async function listTasksByContext(contextId: string): Promise<Task[]> {
+  const result = await pool.query<Task>(
+    `SELECT * FROM tasks
+     WHERE context_id = $1 AND status != 'completed'
+     ORDER BY
+       CASE priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END,
+       scheduled_date ASC NULLS LAST,
+       created_at DESC`,
+    [contextId],
+  );
+  return result.rows;
+}
+
 export async function countTasksTodayForUser(userId: string, today: string): Promise<number> {
   const result = await pool.query<{ count: string }>(
     `SELECT COUNT(*)::text AS count FROM tasks

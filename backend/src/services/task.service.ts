@@ -1,11 +1,11 @@
 import * as taskRepo from '../repositories/task.repository';
 import * as contextRepo from '../repositories/context.repository';
-import { logActivity } from '../repositories/activity-log.repository';
+import { listActivityForTask, logActivity } from '../repositories/activity-log.repository';
 import { todayLocalISODate } from '../utils/date';
 import { createNaturalLanguageParser } from './parser-factory.service';
 import { createContext as createContextRecord } from './context.service';
 import { NotFoundError } from './context.service';
-import { Task, TaskPriority, TaskStatus } from '../types/domain';
+import { ActivityLog, Task, TaskPriority, TaskStatus } from '../types/domain';
 
 const parser = createNaturalLanguageParser();
 
@@ -32,6 +32,12 @@ export async function getTask(id: string, userId: string): Promise<Task> {
   const task = await taskRepo.findTaskById(id, userId);
   if (!task) throw new NotFoundError('Task not found');
   return task;
+}
+
+export async function getTaskActivity(id: string, userId: string): Promise<ActivityLog[]> {
+  const task = await taskRepo.findTaskById(id, userId);
+  if (!task) throw new NotFoundError('Task not found');
+  return listActivityForTask(id, 50);
 }
 
 export interface CreateTaskInput {
@@ -144,9 +150,10 @@ export async function updateTask(
 }
 
 export async function deleteTask(id: string, userId: string): Promise<void> {
-  const deleted = await taskRepo.deleteTask(id, userId);
-  if (!deleted) throw new NotFoundError('Task not found');
+  const task = await taskRepo.findTaskById(id, userId);
+  if (!task) throw new NotFoundError('Task not found');
   await logActivity({ userId, taskId: id, action: 'deleted' });
+  await taskRepo.deleteTask(id, userId);
 }
 
 export interface DashboardSummary {

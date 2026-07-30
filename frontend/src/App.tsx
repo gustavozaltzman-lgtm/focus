@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { InboxPage } from './pages/InboxPage';
 import { LoginPage } from './pages/LoginPage';
 import { PlanningPage } from './pages/PlanningPage';
+import { SharedContextPage } from './pages/SharedContextPage';
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -65,6 +66,14 @@ export default function App() {
         element={
           <ProtectedLayout>
             <ContextPage />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/shared/:id"
+        element={
+          <ProtectedLayout>
+            <SharedContextPage />
           </ProtectedLayout>
         }
       />

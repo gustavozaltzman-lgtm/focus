@@ -17,6 +17,11 @@ export async function findContextById(id: string, userId: string): Promise<Conte
   return result.rows[0] ?? null;
 }
 
+export async function findContextByIdUnscoped(id: string): Promise<Context | null> {
+  const result = await pool.query<Context>('SELECT * FROM contexts WHERE id = $1', [id]);
+  return result.rows[0] ?? null;
+}
+
 export async function findContextByName(name: string, userId: string): Promise<Context | null> {
   const result = await pool.query<Context>(
     'SELECT * FROM contexts WHERE user_id = $1 AND LOWER(name) = LOWER($2)',

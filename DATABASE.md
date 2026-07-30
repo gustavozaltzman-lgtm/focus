@@ -2,8 +2,8 @@
 
 PostgreSQL puro, sin ORM. El DDL vive versionado en
 [`backend/src/database/migrations/`](./backend/src/database/migrations)
-(`001_init.sql`, `002_webauthn.sql`) y se aplica con `npm run migrate` (runner
-idempotente respaldado por la tabla `schema_migrations`).
+(`001_init.sql` … `004_context_shares.sql`) y se aplica con `npm run migrate`
+(runner idempotente respaldado por la tabla `schema_migrations`).
 
 ## Diagrama de entidades
 
@@ -11,8 +11,9 @@ idempotente respaldado por la tabla `schema_migrations`).
 users (1) ───< (N) contexts
 users (1) ───< (N) tasks >─── (0..1) contexts
 tasks (1) ───< (N) reminders
-users (1) ───< (N) activity_logs >─── (0..1) tasks
+users (1) ───< (N) activity_logs >─── (0..1) tasks (SET NULL al borrar la tarea)
 users (1) ───< (N) webauthn_credentials
+contexts (1) ───< (N) context_shares >─── (1) users (shared_with)
 ```
 
 ## DDL completo
@@ -106,6 +107,24 @@ CREATE TABLE IF NOT EXISTS webauthn_credentials (
 );
 
 CREATE INDEX IF NOT EXISTS idx_webauthn_credentials_user_id ON webauthn_credentials(user_id);
+
+-- 003_activity_log_survives_delete.sql
+ALTER TABLE activity_logs
+  DROP CONSTRAINT activity_logs_task_id_fkey,
+  ADD CONSTRAINT activity_logs_task_id_fkey
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL;
+
+-- 004_context_shares.sql
+CREATE TABLE IF NOT EXISTS context_shares (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  context_id UUID NOT NULL REFERENCES contexts(id) ON DELETE CASCADE,
+  shared_with_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT context_shares_unique UNIQUE (context_id, shared_with_user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_context_shares_context_id ON context_shares(context_id);
+CREATE INDEX IF NOT EXISTS idx_context_shares_shared_with ON context_shares(shared_with_user_id);
 ```
 
 ## Notas de diseño
@@ -124,3 +143,13 @@ CREATE INDEX IF NOT EXISTS idx_webauthn_credentials_user_id ON webauthn_credenti
 - **`contexts_user_name_unique`**: evita contextos duplicados por usuario
   (ej. dos "CDI"), lo que también hace determinístico el matching del parser
   de lenguaje natural.
+- **`activity_logs.task_id` es `ON DELETE SET NULL`** (no `CASCADE`, corregido
+  en `003`): un log es un registro de auditoría y debe sobrevivir a que se
+  borre la tarea que lo generó — incluso la propia entrada `'deleted'`. Con
+  `CASCADE` esa entrada se autodestruía apenas se insertaba (viola FK) y el
+  endpoint de borrado devolvía 500.
+- **`context_shares_unique`**: un contexto no puede compartirse dos veces con
+  el mismo usuario. El acceso de solo lectura se apoya en que las tablas de
+  `tasks`/`reminders` siguen scopeadas por `user_id` del dueño — un invitado
+  nunca puede mutarlas via los endpoints normales, solo leer via las rutas
+  `/contexts/:id/shared-view` y `/contexts/shared-with-me`.

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Context } from '../../types/domain';
 import { Modal } from '../ui/Modal';
 import { useCreateContext, useDeleteContext, useUpdateContext } from '../../hooks/useContexts';
+import { ContextShareSection } from './ContextShareSection';
 
 const PALETTE = [
   '#92400E',
@@ -99,6 +100,8 @@ export function ContextFormModal({ context, onClose }: ContextFormModalProps) {
             ))}
           </div>
         </div>
+
+        {context && <ContextShareSection contextId={context.id} />}
 
         {error && <p className="text-sm text-urgent">{error}</p>}
 

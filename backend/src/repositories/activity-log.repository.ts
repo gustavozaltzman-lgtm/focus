@@ -20,3 +20,11 @@ export async function listRecentActivity(userId: string, limit: number): Promise
   );
   return result.rows;
 }
+
+export async function listActivityForTask(taskId: string, limit: number): Promise<ActivityLog[]> {
+  const result = await pool.query<ActivityLog>(
+    `SELECT * FROM activity_logs WHERE task_id = $1 ORDER BY created_at DESC LIMIT $2`,
+    [taskId, limit],
+  );
+  return result.rows;
+}

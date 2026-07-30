@@ -16,6 +16,7 @@ router.use(authMiddleware);
 router.get('/dashboard', taskController.getDashboard);
 router.get('/', validateQuery(taskQuerySchema), taskController.listTasks);
 router.get('/:id', taskController.getTask);
+router.get('/:id/activity', taskController.getTaskActivity);
 router.post('/', validateBody(createTaskSchema), taskController.createTask);
 router.post('/capture', validateBody(quickCaptureSchema), taskController.quickCapture);
 router.post('/capture/preview', validateBody(quickCaptureSchema), taskController.previewCapture);
