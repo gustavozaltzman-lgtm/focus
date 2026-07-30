@@ -16,20 +16,20 @@ export function Modal({ title, onClose, children }: ModalProps) {
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-950/50 px-4 py-6 backdrop-blur-sm sm:items-center sm:py-10">
       <button
         aria-label="Cerrar"
         onClick={onClose}
-        className="absolute inset-0 cursor-default"
+        className="fixed inset-0 cursor-default"
         tabIndex={-1}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative w-full max-w-md rounded-xl2 border border-mist-200 bg-white p-6 shadow-soft"
+        className="relative flex max-h-full w-full max-w-md flex-col rounded-xl2 border border-mist-200 bg-white shadow-soft"
       >
-        <div className="mb-4 flex items-center justify-between">
+        <div className="flex shrink-0 items-center justify-between p-6 pb-4">
           <h2 className="text-lg font-semibold tracking-tight text-ink-950">{title}</h2>
           <button
             onClick={onClose}
@@ -46,7 +46,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
             </svg>
           </button>
         </div>
-        {children}
+        <div className="overflow-y-auto px-6 pb-6">{children}</div>
       </div>
     </div>
   );

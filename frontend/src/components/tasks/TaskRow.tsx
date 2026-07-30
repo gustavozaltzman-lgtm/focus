@@ -57,11 +57,13 @@ export function TaskRow({ task, context, onToggleComplete, onEdit }: TaskRowProp
         <div className="mt-1 flex items-center gap-2 text-xs text-mist-400">
           {task.scheduled_date && <span className="figures">{formatDate(task.scheduled_date)}</span>}
           {task.scheduled_time && <span className="figures">{task.scheduled_time}</span>}
-          {context && <ContextChip name={context.name} colorHex={context.color_hex} />}
         </div>
       </button>
 
-      <PriorityDot priority={task.priority} />
+      <div className="flex shrink-0 items-center gap-2.5">
+        {context && <ContextChip name={context.name} colorHex={context.color_hex} />}
+        <PriorityDot priority={task.priority} />
+      </div>
     </div>
   );
 }
