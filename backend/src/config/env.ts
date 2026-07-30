@@ -14,6 +14,9 @@ interface EnvConfig {
   webauthnRpId: string;
   webauthnRpName: string;
   webauthnOrigin: string;
+  vapidPublicKey: string | undefined;
+  vapidPrivateKey: string | undefined;
+  vapidSubject: string;
 }
 
 function requireEnv(name: string): string {
@@ -46,4 +49,7 @@ export const env: EnvConfig = {
   webauthnRpId: process.env.WEBAUTHN_RP_ID ?? deriveDefaultRpId(corsOrigin),
   webauthnRpName: process.env.WEBAUTHN_RP_NAME ?? 'Focus',
   webauthnOrigin: process.env.WEBAUTHN_ORIGIN ?? corsOrigin,
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY,
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY,
+  vapidSubject: process.env.VAPID_SUBJECT ?? 'mailto:no-reply@focus.app',
 };

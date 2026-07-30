@@ -1,5 +1,6 @@
 import { useAuth } from '../../context/AuthContext';
 import { EnableBiometricButton } from '../auth/EnableBiometricButton';
+import { EnablePushButton } from '../reminders/EnablePushButton';
 
 export function MobileHeader() {
   const { logout } = useAuth();
@@ -13,6 +14,7 @@ export function MobileHeader() {
         </button>
       </div>
       <EnableBiometricButton className="mt-1 text-xs font-medium text-mist-400 underline-offset-2 hover:text-ink-950 hover:underline" />
+      <EnablePushButton className="mt-1 text-xs font-medium text-mist-400 underline-offset-2 hover:text-ink-950 hover:underline" />
     </div>
   );
 }

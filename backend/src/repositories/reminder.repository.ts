@@ -25,6 +25,23 @@ export async function listPendingReminders(before: Date): Promise<Reminder[]> {
   return result.rows;
 }
 
+export interface DuePendingReminder extends Reminder {
+  user_id: string;
+  task_title: string;
+}
+
+export async function listDuePendingRemindersGlobal(before: Date): Promise<DuePendingReminder[]> {
+  const result = await pool.query<DuePendingReminder>(
+    `SELECT r.*, t.user_id AS user_id, t.title AS task_title
+     FROM reminders r
+     JOIN tasks t ON t.id = r.task_id
+     WHERE r.status = 'pending' AND r.trigger_at <= $1
+     ORDER BY r.trigger_at ASC`,
+    [before],
+  );
+  return result.rows;
+}
+
 export interface DueReminder extends Reminder {
   task_title: string;
 }

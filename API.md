@@ -144,6 +144,25 @@ Body: `{ "minutes": 30 }`. Reprograma `trigger_at` y vuelve a `pending`.
 ### `DELETE /reminders/:id`
 204 sin contenido.
 
+Entrega real: un job server-side (`dispatchDueReminders`, cada 30s) busca
+recordatorios vencidos y les manda un Web Push a cada dispositivo suscripto
+del usuario, así llega la alarma aunque la app esté cerrada. El
+`ReminderWatcher` del cliente (polling cada 20s + `Notification` local) queda
+como fallback visual mientras la pestaña está abierta.
+
+## Push notifications
+
+### `GET /push/vapid-public-key`
+Sin autenticación. 200 → `{ "publicKey": "..." | null }` (`null` si el backend
+no tiene `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` configuradas).
+
+### `POST /push/subscribe`
+Body: `{ "endpoint": "...", "keys": { "p256dh": "...", "auth": "..." } }`
+(el resultado de `PushSubscription.toJSON()` del navegador). 201 → `{ "ok": true }`.
+
+### `POST /push/unsubscribe`
+Body: `{ "endpoint": "..." }`. 204 sin contenido.
+
 ## WebAuthn (passkeys)
 
 Ver [ARCHITECTURE.md](./ARCHITECTURE.md#autenticación-biométrica-webauthn):

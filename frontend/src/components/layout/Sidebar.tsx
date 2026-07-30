@@ -4,6 +4,7 @@ import { useContexts } from '../../hooks/useContexts';
 import { useSharedWithMe } from '../../hooks/useContextShares';
 import { useUpdateTask } from '../../hooks/useTasks';
 import { EnableBiometricButton } from '../auth/EnableBiometricButton';
+import { EnablePushButton } from '../reminders/EnablePushButton';
 import { DropNavLink } from './DropNavLink';
 
 const linkBase =
@@ -128,6 +129,7 @@ export function Sidebar() {
 
       <div className="space-y-3 px-2">
         <EnableBiometricButton />
+        <EnablePushButton />
         <div className="flex items-center justify-between border-t border-white/5 pt-3">
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-white">{user?.full_name}</p>

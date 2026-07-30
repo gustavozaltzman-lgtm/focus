@@ -1,9 +1,10 @@
 import { createApp } from './app';
 import { env } from './config/env';
 import { checkDbConnection } from './config/db';
-import { sweepPendingReminders } from './services/reminder.service';
+import { dispatchDueReminders, sweepPendingReminders } from './services/reminder.service';
 
 const REMINDER_SWEEP_INTERVAL_MS = 5 * 60_000;
+const REMINDER_DISPATCH_INTERVAL_MS = 30_000;
 
 async function main(): Promise<void> {
   await checkDbConnection();
@@ -12,6 +13,12 @@ async function main(): Promise<void> {
   app.listen(env.port, () => {
     console.log(`Focus API listening on port ${env.port} [${env.nodeEnv}]`);
   });
+
+  setInterval(() => {
+    dispatchDueReminders().catch((error) => {
+      console.error('Reminder push dispatch failed:', error);
+    });
+  }, REMINDER_DISPATCH_INTERVAL_MS);
 
   setInterval(() => {
     sweepPendingReminders().catch((error) => {

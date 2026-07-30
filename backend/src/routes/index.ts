@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes';
 import contextRoutes from './context.routes';
+import pushRoutes from './push.routes';
 import reminderRoutes from './reminder.routes';
 import taskRoutes from './task.routes';
 import webauthnRoutes from './webauthn.routes';
@@ -16,5 +17,6 @@ router.use('/contexts', contextRoutes);
 router.use('/tasks', taskRoutes);
 router.use('/reminders', reminderRoutes);
 router.use('/webauthn', webauthnRoutes);
+router.use('/push', pushRoutes);
 
 export default router;

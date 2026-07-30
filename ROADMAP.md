@@ -24,10 +24,14 @@
 - [x] UI para crear/quitar recordatorios desde el editor de tarea.
 - [x] Alarma in-app: polling de `/reminders/due` cada 20s mientras la app está
       abierta, dispara una Notification del navegador y hace dismiss.
+- [x] Web Push real: job server-side (`dispatchDueReminders`, cada 30s) manda
+      la alarma a cada dispositivo suscripto via VAPID/`web-push`, así llega
+      aunque la app esté cerrada. Botón "Activar alarmas aunque la app esté
+      cerrada" en el sidebar/header móvil registra el service worker
+      (`public/sw.js`) y la suscripción (`push_subscriptions`). El polling
+      cliente queda como fallback visual mientras la pestaña está abierta.
 - [ ] Snooze real desde la notificación (el endpoint `/reminders/:id/snooze`
-      ya existe, falta exponerlo en la UI de la notificación).
-- [ ] Notificaciones con la app cerrada (requiere service worker + push
-      real, ver v1.6).
+      ya existe, falta exponerlo en la UI de la notificación push).
 
 ## v1.2 — Parser con IA (hecho)
 - [x] `ClaudeParser` con tool use forzado (`extract_task`) + fallback a
@@ -62,9 +66,9 @@
       endpoint de borrado).
 
 ## v1.6 — Mobile nativo / PWA
-- [ ] Manifest + service worker para instalar Focus como PWA en el teléfono
-      (hoy es responsive web, no instalable).
-- [ ] Push notifications reales con la app cerrada (Web Push + VAPID).
+- [ ] Manifest + service worker completo para instalar Focus como PWA en el
+      teléfono (hoy es responsive web, no instalable; el service worker que
+      existe es solo para push, ver v1.1).
 - [ ] Alternativa táctil al drag & drop de v1.3 (hoy no funciona en mobile).
 
 ## Ideas en evaluación (sin comprometer)

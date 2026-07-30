@@ -4,6 +4,7 @@ import { logActivity } from '../repositories/activity-log.repository';
 import { NotFoundError } from './context.service';
 import { AppError } from '../middlewares/error-handler.middleware';
 import { Reminder } from '../types/domain';
+import * as pushService from './push.service';
 
 async function assertTaskOwnership(taskId: string, userId: string): Promise<void> {
   const task = await findTaskById(taskId, userId);
@@ -59,6 +60,24 @@ export async function deleteReminder(userId: string, id: string): Promise<void> 
   const reminder = await reminderRepo.findReminderForUser(id, userId);
   if (!reminder) throw new NotFoundError('Reminder not found');
   await reminderRepo.deleteReminder(id);
+}
+
+/**
+ * Entrega real de recordatorios: corre server-side asi que llega aunque la
+ * app este cerrada, a diferencia del ReminderWatcher del cliente (que solo
+ * funciona con la pestaña abierta y queda como fallback visual).
+ */
+export async function dispatchDueReminders(): Promise<number> {
+  const due = await reminderRepo.listDuePendingRemindersGlobal(new Date());
+  for (const reminder of due) {
+    await pushService.sendToUser(reminder.user_id, {
+      title: 'Focus — recordatorio',
+      body: reminder.task_title,
+      tag: `reminder-${reminder.id}`,
+    });
+    await reminderRepo.updateReminderStatus(reminder.id, 'sent');
+  }
+  return due.length;
 }
 
 const GRACE_PERIOD_MS = 10 * 60_000;
