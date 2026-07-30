@@ -5,6 +5,8 @@ export interface TaskQuery {
   status?: TaskStatus;
   contextId?: string;
   scheduledDate?: string;
+  priority?: TaskPriority;
+  excludeCompleted?: boolean;
   page?: number;
   pageSize?: number;
 }

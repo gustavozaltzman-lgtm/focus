@@ -1,7 +1,7 @@
 import * as taskRepo from '../repositories/task.repository';
 import * as contextRepo from '../repositories/context.repository';
 import { listActivityForTask, logActivity } from '../repositories/activity-log.repository';
-import { todayLocalISODate } from '../utils/date';
+import { startOfWeekLocal, todayLocalISODate } from '../utils/date';
 import { createNaturalLanguageParser } from './parser-factory.service';
 import { createContext as createContextRecord } from './context.service';
 import { NotFoundError } from './context.service';
@@ -13,6 +13,8 @@ export interface TaskListQuery {
   status?: TaskStatus;
   contextId?: string;
   scheduledDate?: string;
+  priority?: TaskPriority;
+  excludeCompleted?: boolean;
   page: number;
   pageSize: number;
 }
@@ -23,6 +25,8 @@ export async function getTasks(userId: string, query: TaskListQuery): Promise<Ta
     status: query.status,
     contextId: query.contextId,
     scheduledDate: query.scheduledDate,
+    priority: query.priority,
+    excludeCompleted: query.excludeCompleted,
     limit: pageSize,
     offset: (Math.max(query.page, 1) - 1) * pageSize,
   });
@@ -160,16 +164,21 @@ export interface DashboardSummary {
   urgentCount: number;
   scheduledCount: number;
   inboxCount: number;
+  overdueCount: number;
+  completedThisWeekCount: number;
   todayTasks: Task[];
 }
 
 export async function getDashboardSummary(userId: string): Promise<DashboardSummary> {
   const today = todayLocalISODate();
-  const [urgentCount, statusCounts, todayTasks] = await Promise.all([
-    taskRepo.countUrgentTasks(userId),
-    taskRepo.countTasksByStatus(userId),
-    taskRepo.listTasks(userId, { status: undefined, scheduledDate: today, limit: 50, offset: 0 }),
-  ]);
+  const [urgentCount, statusCounts, overdueCount, completedThisWeekCount, todayTasks] =
+    await Promise.all([
+      taskRepo.countUrgentTasks(userId),
+      taskRepo.countTasksByStatus(userId),
+      taskRepo.countOverdueTasks(userId, today),
+      taskRepo.countCompletedSince(userId, startOfWeekLocal()),
+      taskRepo.listTasks(userId, { status: undefined, scheduledDate: today, limit: 50, offset: 0 }),
+    ]);
 
   const combinedToday = await taskRepo.listTasks(userId, {
     status: 'today',
@@ -186,6 +195,8 @@ export async function getDashboardSummary(userId: string): Promise<DashboardSumm
     urgentCount,
     scheduledCount: statusCounts['upcoming'] ?? 0,
     inboxCount: statusCounts['inbox'] ?? 0,
+    overdueCount,
+    completedThisWeekCount,
     todayTasks: Array.from(merged.values()),
   };
 }

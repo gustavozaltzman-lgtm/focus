@@ -7,11 +7,12 @@ import { TASK_DRAG_MIME } from '../../lib/dnd';
 interface TaskRowProps {
   task: Task;
   context?: Context;
+  hideContextChip?: boolean;
   onToggleComplete: (task: Task) => void;
   onEdit: (task: Task) => void;
 }
 
-export function TaskRow({ task, context, onToggleComplete, onEdit }: TaskRowProps) {
+export function TaskRow({ task, context, hideContextChip, onToggleComplete, onEdit }: TaskRowProps) {
   const isCompleted = task.status === 'completed';
   const edgeColor = context?.color_hex ?? '#D2CDC0';
 
@@ -63,7 +64,7 @@ export function TaskRow({ task, context, onToggleComplete, onEdit }: TaskRowProp
       </button>
 
       <div className="flex shrink-0 items-center gap-2.5">
-        {context && <ContextChip name={context.name} colorHex={context.color_hex} />}
+        {context && !hideContextChip && <ContextChip name={context.name} colorHex={context.color_hex} />}
         <PriorityDot priority={task.priority} />
       </div>
     </div>

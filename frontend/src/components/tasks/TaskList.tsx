@@ -8,9 +8,10 @@ interface TaskListProps {
   tasks: Task[];
   contexts: Context[];
   emptyLabel: string;
+  hideContextChip?: boolean;
 }
 
-export function TaskList({ tasks, contexts, emptyLabel }: TaskListProps) {
+export function TaskList({ tasks, contexts, emptyLabel, hideContextChip }: TaskListProps) {
   const completeTask = useCompleteTask();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const contextById = new Map(contexts.map((context) => [context.id, context]));
@@ -28,6 +29,7 @@ export function TaskList({ tasks, contexts, emptyLabel }: TaskListProps) {
               key={task.id}
               task={task}
               context={task.context_id ? contextById.get(task.context_id) : undefined}
+              hideContextChip={hideContextChip}
               onToggleComplete={(t) => completeTask.mutate(t.id)}
               onEdit={setEditingTask}
             />

@@ -1,10 +1,12 @@
 import { pool } from '../config/db';
-import { Task, TaskStatus } from '../types/domain';
+import { Task, TaskPriority, TaskStatus } from '../types/domain';
 
 export interface TaskFilters {
   status?: TaskStatus;
   contextId?: string;
   scheduledDate?: string;
+  priority?: TaskPriority;
+  excludeCompleted?: boolean;
   limit: number;
   offset: number;
 }
@@ -24,6 +26,13 @@ export async function listTasks(userId: string, filters: TaskFilters): Promise<T
   if (filters.scheduledDate) {
     params.push(filters.scheduledDate);
     conditions.push(`scheduled_date = $${params.length}`);
+  }
+  if (filters.priority) {
+    params.push(filters.priority);
+    conditions.push(`priority = $${params.length}`);
+  }
+  if (filters.excludeCompleted) {
+    conditions.push(`status != 'completed'`);
   }
 
   params.push(filters.limit);
@@ -93,6 +102,25 @@ export async function countUrgentTasks(userId: string): Promise<number> {
     `SELECT COUNT(*)::text AS count FROM tasks
      WHERE user_id = $1 AND priority = 'high' AND status != 'completed'`,
     [userId],
+  );
+  return Number(result.rows[0]?.count ?? 0);
+}
+
+export async function countOverdueTasks(userId: string, today: string): Promise<number> {
+  const result = await pool.query<{ count: string }>(
+    `SELECT COUNT(*)::text AS count FROM tasks
+     WHERE user_id = $1 AND status != 'completed'
+       AND scheduled_date IS NOT NULL AND scheduled_date < $2`,
+    [userId, today],
+  );
+  return Number(result.rows[0]?.count ?? 0);
+}
+
+export async function countCompletedSince(userId: string, since: Date): Promise<number> {
+  const result = await pool.query<{ count: string }>(
+    `SELECT COUNT(*)::text AS count FROM tasks
+     WHERE user_id = $1 AND status = 'completed' AND completed_at >= $2`,
+    [userId, since],
   );
   return Number(result.rows[0]?.count ?? 0);
 }

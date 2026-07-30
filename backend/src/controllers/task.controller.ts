@@ -14,6 +14,8 @@ export const listTasks = asyncHandler(async (req: AuthenticatedRequest, res: Res
     status?: taskService.TaskListQuery['status'];
     contextId?: string;
     scheduledDate?: string;
+    priority?: taskService.TaskListQuery['priority'];
+    excludeCompleted?: boolean;
     page: number;
     pageSize: number;
   };

@@ -39,5 +39,7 @@ export interface DashboardSummary {
   urgentCount: number;
   scheduledCount: number;
   inboxCount: number;
+  overdueCount: number;
+  completedThisWeekCount: number;
   todayTasks: Task[];
 }
