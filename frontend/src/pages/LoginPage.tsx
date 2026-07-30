@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { BiometricLoginButton } from '../components/auth/BiometricLoginButton';
 
 export function LoginPage() {
   const { login, register, isAuthenticated } = useAuth();
@@ -37,11 +38,11 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-mist-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-ink-950 px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <p className="text-2xl font-semibold tracking-tight text-ink-950">Focus</p>
-          <p className="mt-2 text-sm text-mist-500">Tu segundo cerebro, sin fricción.</p>
+          <p className="font-display text-3xl text-white">Focus</p>
+          <p className="mt-2 text-sm text-mist-400/70">Tu segundo cerebro, sin fricción.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="focus-card space-y-3 p-6">
@@ -61,6 +62,7 @@ export function LoginPage() {
             placeholder="Email"
             className="focus-input"
             required
+            autoComplete="email"
           />
           <input
             type="password"
@@ -70,6 +72,7 @@ export function LoginPage() {
             className="focus-input"
             required
             minLength={8}
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           />
 
           {error && <p className="text-sm text-urgent">{error}</p>}
@@ -78,17 +81,28 @@ export function LoginPage() {
             {isSubmitting ? 'Un momento…' : mode === 'login' ? 'Ingresar' : 'Crear cuenta'}
           </button>
 
+          {mode === 'login' && (
+            <>
+              <div className="flex items-center gap-3 py-1 text-xs text-mist-400">
+                <span className="h-px flex-1 bg-mist-200" />
+                o
+                <span className="h-px flex-1 bg-mist-200" />
+              </div>
+              <BiometricLoginButton email={email} onError={setError} />
+            </>
+          )}
+
           <button type="button" className="focus-btn-ghost w-full" disabled>
             Continuar con Google
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-mist-500">
+        <p className="mt-4 text-center text-sm text-mist-400/70">
           {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
           <button
             type="button"
             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-            className="font-medium text-ink-950 hover:underline"
+            className="font-medium text-white hover:underline"
           >
             {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
           </button>

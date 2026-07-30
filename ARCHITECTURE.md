@@ -67,6 +67,24 @@ Interfaz `NaturalLanguageParser` (`ai-parser.service.ts`) con un único método
 configurada usa `ClaudeParser`, si no, `RuleBasedParser`. El resto del sistema
 (`task.service.ts`) solo conoce la interfaz, nunca la implementación concreta.
 
+### Autenticación biométrica (WebAuthn)
+
+`webauthn.service.ts` implementa registro y login con passkeys (Face ID, Touch
+ID, Windows Hello, huella de Android) usando `@simplewebauthn/server`:
+
+- **Registro** (`GET/POST /api/webauthn/register/*`, autenticado): genera un
+  challenge de registro, el navegador lo firma con el autenticador de la
+  plataforma, y el backend guarda `credential_id` + `public_key` + `counter`
+  en `webauthn_credentials`.
+- **Login** (`POST /api/webauthn/login/*`, público): dado un email, busca sus
+  credenciales, genera un challenge de autenticación, verifica la firma y
+  devuelve el mismo `{ user, token }` que el login con contraseña.
+- Los challenges en tránsito viven en un `Map` en memoria del proceso (no en
+  DB) — suficiente para una sola instancia; si el backend escala a múltiples
+  instancias, hay que moverlos a un store compartido (Redis, tabla con TTL).
+- `WEBAUTHN_RP_ID`/`WEBAUTHN_ORIGIN` deben coincidir exactamente con el
+  dominio real del frontend en cada entorno.
+
 ## Frontend — flujo de datos
 
 ```
@@ -89,7 +107,21 @@ Backend API
 - `hooks/`: encapsulan TanStack Query; invalidan `tasks`/`dashboard`/`contexts`
   tras cada mutación para mantener la UI consistente sin estado global manual.
 - `components/`: divididos por dominio (`tasks/`, `dashboard/`, `capture/`,
-  `layout/`, `ui/`) — nunca un archivo "components/index" gigante.
+  `layout/`, `auth/`, `ui/`) — nunca un archivo "components/index" gigante.
+
+### Identidad visual y responsive
+
+- Tipografía: `Fraunces` (display, solo greetings/wordmark/títulos), stack
+  nativo del sistema (`-apple-system`/`SF Pro`) para texto de UI, `IBM Plex
+  Mono` para todo dato cuantitativo (fechas, horas, contadores) — la clase
+  utilitaria `.figures` marca esta convención en todo el código.
+- Color: paleta cálida "paper" (`#FBFAF7`) para el contenido, `ink-950`
+  (`#15151A`) para el sidebar/login como "lomo de cuaderno", un color de
+  contexto por fila de tarea (`box-shadow` inset de 3px en el borde izquierdo).
+- Mobile: `AppShell` oculta el `Sidebar` (`hidden md:flex`) y muestra
+  `MobileHeader` + `MobileTabBar` (`md:hidden`) por debajo de 768px. El resto
+  de las páginas usan grids/paddings responsive (`sm:`/`md:`) en vez de
+  layouts separados por dispositivo.
 
 ## Seguridad
 

@@ -12,6 +12,10 @@ function greeting(): string {
   return 'Buenas noches';
 }
 
+function capitalizeFirst(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 export function DashboardPage() {
   const { user } = useAuth();
   const { data: summary, isLoading } = useDashboard();
@@ -19,34 +23,36 @@ export function DashboardPage() {
   const firstName = user?.full_name?.split(' ')[0] ?? '';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-7 sm:space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink-950">
+        <h1 className="font-display text-[28px] leading-tight text-ink-950 sm:text-[32px]">
           {greeting()}, {firstName}
         </h1>
-        <p className="mt-1 text-sm text-mist-500">
-          {new Date().toLocaleDateString('es-ES', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-          })}
+        <p className="figures mt-1 text-sm text-mist-500">
+          {capitalizeFirst(
+            new Date().toLocaleDateString('es-ES', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            }),
+          )}
         </p>
       </div>
 
       <QuickCaptureBar />
 
-      <div className="flex gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <StatTile label="Urgentes" value={summary?.urgentCount ?? 0} accentClassName="text-urgent" />
         <StatTile
           label="Programadas"
           value={summary?.scheduledCount ?? 0}
           accentClassName="text-warn"
         />
-        <StatTile label="Ideas (inbox)" value={summary?.inboxCount ?? 0} accentClassName="text-mist-500" />
+        <StatTile label="Ideas" value={summary?.inboxCount ?? 0} accentClassName="text-mist-500" />
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-mist-400">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-mist-400">
           Foco de hoy
         </h2>
         {isLoading ? (

@@ -11,6 +11,9 @@ interface EnvConfig {
   corsOrigin: string;
   anthropicApiKey: string | undefined;
   anthropicModel: string;
+  webauthnRpId: string;
+  webauthnRpName: string;
+  webauthnOrigin: string;
 }
 
 function requireEnv(name: string): string {
@@ -21,13 +24,26 @@ function requireEnv(name: string): string {
   return value;
 }
 
+function deriveDefaultRpId(origin: string): string {
+  try {
+    return new URL(origin).hostname;
+  } catch {
+    return 'localhost';
+  }
+}
+
+const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
+
 export const env: EnvConfig = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port: Number(process.env.PORT ?? 4000),
   databaseUrl: requireEnv('DATABASE_URL'),
   jwtSecret: requireEnv('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
-  corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+  corsOrigin,
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
   anthropicModel: process.env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001',
+  webauthnRpId: process.env.WEBAUTHN_RP_ID ?? deriveDefaultRpId(corsOrigin),
+  webauthnRpName: process.env.WEBAUTHN_RP_NAME ?? 'Focus',
+  webauthnOrigin: process.env.WEBAUTHN_ORIGIN ?? corsOrigin,
 };

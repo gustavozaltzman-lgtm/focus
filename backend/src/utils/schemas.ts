@@ -52,6 +52,20 @@ export const quickCaptureSchema = z.object({
   text: z.string().min(1).max(1000),
 });
 
+export const webauthnRegisterVerifySchema = z.object({
+  response: z.record(z.any()),
+  deviceName: z.string().max(120).nullish(),
+});
+
+export const webauthnAuthOptionsSchema = z.object({
+  email: z.string().email(),
+});
+
+export const webauthnAuthVerifySchema = z.object({
+  email: z.string().email(),
+  response: z.record(z.any()),
+});
+
 export const taskQuerySchema = z.object({
   status: statusEnum.optional(),
   contextId: z.string().uuid().optional(),

@@ -10,9 +10,13 @@ interface TaskRowProps {
 
 export function TaskRow({ task, context, onToggleComplete }: TaskRowProps) {
   const isCompleted = task.status === 'completed';
+  const edgeColor = context?.color_hex ?? '#D2CDC0';
 
   return (
-    <div className="group flex items-center gap-3 border-b border-mist-100 px-1 py-3 last:border-b-0">
+    <div
+      className="group flex items-center gap-3 border-b border-mist-100 py-3 pl-3 pr-1 last:border-b-0"
+      style={{ boxShadow: `inset 3px 0 0 0 ${edgeColor}` }}
+    >
       <button
         onClick={() => onToggleComplete(task)}
         aria-label={isCompleted ? 'Marcar como pendiente' : 'Completar tarea'}
@@ -40,8 +44,8 @@ export function TaskRow({ task, context, onToggleComplete }: TaskRowProps) {
           {task.title}
         </p>
         <div className="mt-1 flex items-center gap-2 text-xs text-mist-400">
-          {task.scheduled_date && <span>{formatDate(task.scheduled_date)}</span>}
-          {task.scheduled_time && <span>{task.scheduled_time}</span>}
+          {task.scheduled_date && <span className="figures">{formatDate(task.scheduled_date)}</span>}
+          {task.scheduled_time && <span className="figures">{task.scheduled_time}</span>}
           {context && <ContextChip name={context.name} colorHex={context.color_hex} />}
         </div>
       </div>
@@ -53,5 +57,5 @@ export function TaskRow({ task, context, onToggleComplete }: TaskRowProps) {
 
 function formatDate(isoDate: string): string {
   const date = new Date(`${isoDate}T00:00:00`);
-  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
 }

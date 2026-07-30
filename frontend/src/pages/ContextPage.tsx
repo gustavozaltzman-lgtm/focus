@@ -18,7 +18,7 @@ export function ContextPage() {
         <div className="mb-2">
           <ContextChip name={context.name} colorHex={context.color_hex} />
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink-950">{context.name}</h1>
+        <h1 className="font-display text-[28px] text-ink-950 sm:text-[32px]">{context.name}</h1>
       </div>
 
       {isLoading ? (

@@ -10,14 +10,25 @@
   }
 
   ::selection {
-    background: theme('colors.accent.soft');
-    color: theme('colors.accent.DEFAULT');
+    background: theme('colors.signal.soft');
+    color: theme('colors.signal.DEFAULT');
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.signal.DEFAULT');
+    outline-offset: 2px;
   }
 }
 
 @layer components {
+  /* Numbers, dates, times and counts render in mono with tabular figures —
+     the ledger rhythm that separates "data" from prose throughout the app. */
+  .figures {
+    @apply font-mono tabular-nums;
+  }
+
   .focus-input {
-    @apply w-full rounded-xl border border-mist-200 bg-white px-4 py-3 text-[15px] text-ink-950 placeholder:text-mist-400 outline-none transition focus:border-accent focus:ring-4 focus:ring-accent-soft;
+    @apply w-full rounded-lg border border-mist-200 bg-white px-4 py-3 text-[15px] text-ink-950 placeholder:text-mist-400 outline-none transition focus:border-signal focus:ring-4 focus:ring-signal-soft;
   }
 
   .focus-card {
@@ -25,10 +36,20 @@
   }
 
   .focus-btn-primary {
-    @apply inline-flex items-center justify-center rounded-xl bg-ink-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ink-800 active:scale-[0.98] disabled:opacity-40;
+    @apply inline-flex items-center justify-center rounded-lg bg-ink-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-ink-800 active:scale-[0.98] disabled:opacity-40;
   }
 
   .focus-btn-ghost {
-    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium text-mist-500 transition hover:bg-mist-100 hover:text-ink-950;
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-mist-500 transition hover:bg-mist-100 hover:text-ink-950;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
