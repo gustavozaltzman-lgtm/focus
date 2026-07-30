@@ -17,7 +17,30 @@ export function MobileTabBar() {
         <InboxIcon />
         Inbox
       </NavLink>
+      <NavLink
+        to="/contexts"
+        className={({ isActive }) => `${tabBase} ${isActive ? tabActive : ''}`}
+      >
+        <ContextsIcon />
+        Contextos
+      </NavLink>
     </nav>
+  );
+}
+
+function ContextsIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M4 6h6M4 12h6M4 18h6M15 6h5M15 12h5M15 18h5"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <circle cx="13" cy="6" r="1.3" fill="currentColor" />
+      <circle cx="13" cy="12" r="1.3" fill="currentColor" />
+      <circle cx="13" cy="18" r="1.3" fill="currentColor" />
+    </svg>
   );
 }
 

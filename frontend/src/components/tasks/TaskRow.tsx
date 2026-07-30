@@ -6,9 +6,10 @@ interface TaskRowProps {
   task: Task;
   context?: Context;
   onToggleComplete: (task: Task) => void;
+  onEdit: (task: Task) => void;
 }
 
-export function TaskRow({ task, context, onToggleComplete }: TaskRowProps) {
+export function TaskRow({ task, context, onToggleComplete, onEdit }: TaskRowProps) {
   const isCompleted = task.status === 'completed';
   const edgeColor = context?.color_hex ?? '#D2CDC0';
 
@@ -39,7 +40,11 @@ export function TaskRow({ task, context, onToggleComplete }: TaskRowProps) {
         )}
       </button>
 
-      <div className="min-w-0 flex-1">
+      <button
+        onClick={() => onEdit(task)}
+        className="min-w-0 flex-1 cursor-pointer text-left"
+        aria-label={`Editar ${task.title}`}
+      >
         <p className={`truncate text-[15px] ${isCompleted ? 'text-mist-400 line-through' : 'text-ink-950'}`}>
           {task.title}
         </p>
@@ -48,7 +53,7 @@ export function TaskRow({ task, context, onToggleComplete }: TaskRowProps) {
           {task.scheduled_time && <span className="figures">{task.scheduled_time}</span>}
           {context && <ContextChip name={context.name} colorHex={context.color_hex} />}
         </div>
-      </div>
+      </button>
 
       <PriorityDot priority={task.priority} />
     </div>

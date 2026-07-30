@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { ContextChip } from '../components/ui/ContextChip';
 import { TaskList } from '../components/tasks/TaskList';
+import { NewTaskButton } from '../components/tasks/NewTaskButton';
 import { useContext_, useContexts } from '../hooks/useContexts';
 import { useTasks } from '../hooks/useTasks';
 
@@ -14,11 +15,16 @@ export function ContextPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <div className="mb-2">
-          <ContextChip name={context.name} colorHex={context.color_hex} />
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="mb-2">
+            <ContextChip name={context.name} colorHex={context.color_hex} />
+          </div>
+          <h1 className="text-[26px] font-bold tracking-tight text-ink-950 sm:text-[32px]">
+            {context.name}
+          </h1>
         </div>
-        <h1 className="font-display text-[28px] text-ink-950 sm:text-[32px]">{context.name}</h1>
+        <NewTaskButton defaultContextId={context.id} />
       </div>
 
       {isLoading ? (

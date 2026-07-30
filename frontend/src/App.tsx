@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell';
 import { useAuth } from './context/AuthContext';
 import { ContextPage } from './pages/ContextPage';
+import { ContextsListPage } from './pages/ContextsListPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { InboxPage } from './pages/InboxPage';
 import { LoginPage } from './pages/LoginPage';
@@ -39,6 +40,14 @@ export default function App() {
         element={
           <ProtectedLayout>
             <InboxPage />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/contexts"
+        element={
+          <ProtectedLayout>
+            <ContextsListPage />
           </ProtectedLayout>
         }
       />

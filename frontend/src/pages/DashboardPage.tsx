@@ -1,6 +1,7 @@
 import { StatTile } from '../components/dashboard/StatTile';
 import { QuickCaptureBar } from '../components/capture/QuickCaptureBar';
 import { TaskList } from '../components/tasks/TaskList';
+import { NewTaskButton } from '../components/tasks/NewTaskButton';
 import { useAuth } from '../context/AuthContext';
 import { useContexts } from '../hooks/useContexts';
 import { useDashboard } from '../hooks/useTasks';
@@ -25,7 +26,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-7 sm:space-y-8">
       <div>
-        <h1 className="font-display text-[28px] leading-tight text-ink-950 sm:text-[32px]">
+        <h1 className="text-[26px] font-bold leading-tight tracking-tight text-ink-950 sm:text-[32px]">
           {greeting()}, {firstName}
         </h1>
         <p className="figures mt-1 text-sm text-mist-500">
@@ -52,9 +53,12 @@ export function DashboardPage() {
       </div>
 
       <div>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-mist-400">
-          Foco de hoy
-        </h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-mist-400">
+            Foco de hoy
+          </h2>
+          <NewTaskButton defaultStatus="today" />
+        </div>
         {isLoading ? (
           <p className="text-sm text-mist-400">Cargando…</p>
         ) : (

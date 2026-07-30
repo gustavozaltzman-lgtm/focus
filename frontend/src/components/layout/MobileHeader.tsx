@@ -7,7 +7,7 @@ export function MobileHeader() {
   return (
     <div className="mb-6 md:hidden">
       <div className="flex items-center justify-between">
-        <p className="font-display text-lg text-ink-950">Focus</p>
+        <p className="text-lg font-bold tracking-tight text-ink-950">Focus</p>
         <button onClick={logout} className="focus-btn-ghost px-2 py-1 text-xs">
           Salir
         </button>

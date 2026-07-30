@@ -18,3 +18,15 @@ export async function createContext(name: string, colorHex: string): Promise<Con
   });
   return data.context;
 }
+
+export async function updateContext(
+  id: string,
+  payload: { name?: string; colorHex?: string },
+): Promise<Context> {
+  const { data } = await apiClient.patch<{ context: Context }>(`/contexts/${id}`, payload);
+  return data.context;
+}
+
+export async function deleteContext(id: string): Promise<void> {
+  await apiClient.delete(`/contexts/${id}`);
+}

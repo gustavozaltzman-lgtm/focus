@@ -1,0 +1,240 @@
+import { FormEvent, useState } from 'react';
+import { Task, TaskPriority, TaskStatus } from '../../types/domain';
+import { Modal } from '../ui/Modal';
+import { useContexts } from '../../hooks/useContexts';
+import { useCreateTask, useDeleteTask, useUpdateTask } from '../../hooks/useTasks';
+
+const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
+  { value: 'inbox', label: 'Inbox' },
+  { value: 'today', label: 'Hoy' },
+  { value: 'upcoming', label: 'Próximamente' },
+  { value: 'someday', label: 'Algún día' },
+  { value: 'completed', label: 'Completada' },
+];
+
+const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
+  { value: 'low', label: 'Baja' },
+  { value: 'medium', label: 'Media' },
+  { value: 'high', label: 'Alta' },
+];
+
+interface TaskFormModalProps {
+  task?: Task;
+  defaultContextId?: string;
+  defaultStatus?: TaskStatus;
+  onClose: () => void;
+}
+
+export function TaskFormModal({ task, defaultContextId, defaultStatus, onClose }: TaskFormModalProps) {
+  const { data: contexts = [] } = useContexts();
+  const createTask = useCreateTask();
+  const updateTask = useUpdateTask();
+  const deleteTask = useDeleteTask();
+
+  const [title, setTitle] = useState(task?.title ?? '');
+  const [description, setDescription] = useState(task?.description ?? '');
+  const [contextId, setContextId] = useState(task?.context_id ?? defaultContextId ?? '');
+  const [status, setStatus] = useState<TaskStatus>(task?.status ?? defaultStatus ?? 'inbox');
+  const [priority, setPriority] = useState<TaskPriority>(task?.priority ?? 'medium');
+  const [scheduledDate, setScheduledDate] = useState(task?.scheduled_date ?? '');
+  const [scheduledTime, setScheduledTime] = useState(task?.scheduled_time ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  const isSaving = createTask.isPending || updateTask.isPending;
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setError(null);
+    const trimmed = title.trim();
+    if (!trimmed) {
+      setError('Ponele un título a la tarea.');
+      return;
+    }
+
+    const payload = {
+      title: trimmed,
+      description: description.trim() || null,
+      contextId: contextId || null,
+      status,
+      priority,
+      scheduledDate: scheduledDate || null,
+      scheduledTime: scheduledTime || null,
+    };
+
+    try {
+      if (task) {
+        await updateTask.mutateAsync({ id: task.id, payload });
+      } else {
+        await createTask.mutateAsync(payload);
+      }
+      onClose();
+    } catch {
+      setError('No se pudo guardar la tarea.');
+    }
+  }
+
+  async function handleDelete() {
+    if (!task) return;
+    await deleteTask.mutateAsync(task.id);
+    onClose();
+  }
+
+  return (
+    <Modal title={task ? 'Editar tarea' : 'Nueva tarea'} onClose={onClose}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="task-title" className="mb-1.5 block text-sm font-medium text-ink-950">
+            Título
+          </label>
+          <input
+            id="task-title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="¿Qué hay que hacer?"
+            className="focus-input"
+            autoFocus
+            maxLength={500}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="task-desc" className="mb-1.5 block text-sm font-medium text-ink-950">
+            Descripción <span className="text-mist-400">(opcional)</span>
+          </label>
+          <textarea
+            id="task-desc"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={2}
+            className="focus-input resize-none"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="task-context" className="mb-1.5 block text-sm font-medium text-ink-950">
+              Contexto
+            </label>
+            <select
+              id="task-context"
+              value={contextId}
+              onChange={(e) => setContextId(e.target.value)}
+              className="focus-input"
+            >
+              <option value="">Sin contexto</option>
+              {contexts.map((context) => (
+                <option key={context.id} value={context.id}>
+                  {context.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="task-priority" className="mb-1.5 block text-sm font-medium text-ink-950">
+              Prioridad
+            </label>
+            <select
+              id="task-priority"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as TaskPriority)}
+              className="focus-input"
+            >
+              {PRIORITY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <div className="col-span-2">
+            <label htmlFor="task-date" className="mb-1.5 block text-sm font-medium text-ink-950">
+              Fecha
+            </label>
+            <input
+              id="task-date"
+              type="date"
+              value={scheduledDate}
+              onChange={(e) => setScheduledDate(e.target.value)}
+              className="focus-input figures"
+            />
+          </div>
+          <div>
+            <label htmlFor="task-time" className="mb-1.5 block text-sm font-medium text-ink-950">
+              Hora
+            </label>
+            <input
+              id="task-time"
+              type="time"
+              value={scheduledTime ?? ''}
+              onChange={(e) => setScheduledTime(e.target.value)}
+              className="focus-input figures"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="task-status" className="mb-1.5 block text-sm font-medium text-ink-950">
+            Estado
+          </label>
+          <select
+            id="task-status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as TaskStatus)}
+            className="focus-input"
+          >
+            {STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {error && <p className="text-sm text-urgent">{error}</p>}
+
+        <div className="flex items-center gap-2 pt-1">
+          <button type="submit" disabled={isSaving} className="focus-btn-primary flex-1">
+            {isSaving ? 'Guardando…' : 'Guardar'}
+          </button>
+          {task && !confirmingDelete && (
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(true)}
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-urgent transition hover:bg-urgent/10"
+            >
+              Eliminar
+            </button>
+          )}
+        </div>
+
+        {task && confirmingDelete && (
+          <div className="flex items-center justify-between rounded-lg bg-urgent/5 p-3">
+            <p className="text-sm text-ink-950">¿Eliminar esta tarea?</p>
+            <div className="flex shrink-0 gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(false)}
+                className="rounded-lg px-2 py-1 text-xs font-medium text-mist-500 hover:bg-mist-100"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleteTask.isPending}
+                className="rounded-lg bg-urgent px-2 py-1 text-xs font-medium text-white hover:bg-urgent/90"
+              >
+                {deleteTask.isPending ? 'Eliminando…' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        )}
+      </form>
+    </Modal>
+  );
+}

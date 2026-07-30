@@ -129,33 +129,37 @@ export async function updateTask(
   userId: string,
   params: UpdateTaskParams,
 ): Promise<Task | null> {
-  const isCompleting = params.status === 'completed';
-  const result = await pool.query<Task>(
-    `UPDATE tasks SET
-       context_id = COALESCE($3, context_id),
-       title = COALESCE($4, title),
-       description = COALESCE($5, description),
-       status = COALESCE($6, status),
-       priority = COALESCE($7, priority),
-       scheduled_date = COALESCE($8, scheduled_date),
-       scheduled_time = COALESCE($9, scheduled_time),
-       completed_at = CASE WHEN $10 THEN now() ELSE completed_at END,
-       updated_at = now()
-     WHERE id = $1 AND user_id = $2
-     RETURNING *`,
-    [
-      id,
-      userId,
-      params.contextId === undefined ? null : params.contextId,
-      params.title ?? null,
-      params.description === undefined ? null : params.description,
-      params.status ?? null,
-      params.priority ?? null,
-      params.scheduledDate === undefined ? null : params.scheduledDate,
-      params.scheduledTime === undefined ? null : params.scheduledTime,
-      isCompleting,
-    ],
-  );
+  const setClauses: string[] = [];
+  const values: unknown[] = [];
+
+  function setField(column: string, value: unknown) {
+    values.push(value);
+    setClauses.push(`${column} = $${values.length + 2}`);
+  }
+
+  if ('contextId' in params) setField('context_id', params.contextId);
+  if ('title' in params) setField('title', params.title);
+  if ('description' in params) setField('description', params.description);
+  if ('status' in params) setField('status', params.status);
+  if ('priority' in params) setField('priority', params.priority);
+  if ('scheduledDate' in params) setField('scheduled_date', params.scheduledDate);
+  if ('scheduledTime' in params) setField('scheduled_time', params.scheduledTime);
+  if (params.status === 'completed') {
+    setClauses.push('completed_at = now()');
+  }
+  setClauses.push('updated_at = now()');
+
+  if (setClauses.length === 1) {
+    return findTaskById(id, userId);
+  }
+
+  const query = `
+    UPDATE tasks SET ${setClauses.join(', ')}
+    WHERE id = $1 AND user_id = $2
+    RETURNING *
+  `;
+
+  const result = await pool.query<Task>(query, [id, userId, ...values]);
   return result.rows[0] ?? null;
 }
 

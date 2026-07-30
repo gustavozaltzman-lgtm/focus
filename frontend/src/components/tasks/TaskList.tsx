@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Context, Task } from '../../types/domain';
 import { useCompleteTask } from '../../hooks/useTasks';
 import { TaskRow } from './TaskRow';
+import { TaskFormModal } from './TaskFormModal';
 
 interface TaskListProps {
   tasks: Task[];
@@ -10,26 +12,32 @@ interface TaskListProps {
 
 export function TaskList({ tasks, contexts, emptyLabel }: TaskListProps) {
   const completeTask = useCompleteTask();
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const contextById = new Map(contexts.map((context) => [context.id, context]));
 
-  if (tasks.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-sm text-mist-400">{emptyLabel}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="focus-card px-4">
-      {tasks.map((task) => (
-        <TaskRow
-          key={task.id}
-          task={task}
-          context={task.context_id ? contextById.get(task.context_id) : undefined}
-          onToggleComplete={(t) => completeTask.mutate(t.id)}
-        />
-      ))}
-    </div>
+    <>
+      {tasks.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-sm text-mist-400">{emptyLabel}</p>
+        </div>
+      ) : (
+        <div className="focus-card px-4">
+          {tasks.map((task) => (
+            <TaskRow
+              key={task.id}
+              task={task}
+              context={task.context_id ? contextById.get(task.context_id) : undefined}
+              onToggleComplete={(t) => completeTask.mutate(t.id)}
+              onEdit={setEditingTask}
+            />
+          ))}
+        </div>
+      )}
+
+      {editingTask && (
+        <TaskFormModal task={editingTask} onClose={() => setEditingTask(null)} />
+      )}
+    </>
   );
 }

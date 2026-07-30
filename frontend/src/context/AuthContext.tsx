@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import * as authApi from '../api/auth';
-import { clearToken, getToken, setToken } from '../lib/storage';
+import { clearToken, getToken, setLastEmail, setToken } from '../lib/storage';
 import { User } from '../types/domain';
 
 interface AuthContextValue {
@@ -40,15 +40,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login: async (email, password) => {
         const result = await authApi.login(email, password);
         setToken(result.token);
+        setLastEmail(result.user.email);
         setUser(result.user);
       },
       register: async (email, password, fullName) => {
         const result = await authApi.register(email, password, fullName);
         setToken(result.token);
+        setLastEmail(result.user.email);
         setUser(result.user);
       },
       loginWithSession: (nextUser, token) => {
         setToken(token);
+        setLastEmail(nextUser.email);
         setUser(nextUser);
       },
       logout: () => {

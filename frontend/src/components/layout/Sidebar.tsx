@@ -1,11 +1,11 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useContexts } from '../../hooks/useContexts';
 import { EnableBiometricButton } from '../auth/EnableBiometricButton';
 
 const linkBase =
   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition text-mist-400/80 hover:bg-white/5 hover:text-white';
-const linkActive = 'bg-white/10 text-white';
+const linkActive = 'bg-white/10 text-white shadow-[inset_3px_0_0_0_#D9A441]';
 
 export function Sidebar() {
   const { user, logout } = useAuth();
@@ -15,8 +15,8 @@ export function Sidebar() {
     <aside className="hidden h-full w-64 shrink-0 flex-col justify-between bg-ink-950 px-4 py-6 md:flex">
       <div>
         <div className="mb-8 px-2">
-          <p className="font-display text-xl text-white">Focus</p>
-          <p className="figures mt-0.5 text-[11px] uppercase tracking-widest text-mist-400/60">
+          <p className="text-xl font-bold tracking-tight text-white">Focus</p>
+          <p className="figures mt-0.5 text-[11px] uppercase tracking-widest text-signal-light">
             Execution engine
           </p>
         </div>
@@ -30,9 +30,23 @@ export function Sidebar() {
           </NavLink>
         </nav>
 
-        <p className="mb-2 mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-mist-400/50">
-          Contextos
-        </p>
+        <div className="mb-2 mt-6 flex items-center justify-between px-3">
+          <Link
+            to="/contexts"
+            className="text-[11px] font-semibold uppercase tracking-widest text-mist-400/50 hover:text-white"
+          >
+            Contextos
+          </Link>
+          <Link
+            to="/contexts"
+            aria-label="Gestionar contextos"
+            className="rounded p-0.5 text-mist-400/50 hover:text-white"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </Link>
+        </div>
         <nav className="flex flex-col gap-1">
           {contexts.map((context) => (
             <NavLink

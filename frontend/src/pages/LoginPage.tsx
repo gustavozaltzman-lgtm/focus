@@ -2,12 +2,13 @@ import { FormEvent, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BiometricLoginButton } from '../components/auth/BiometricLoginButton';
+import { getLastEmail } from '../lib/storage';
 
 export function LoginPage() {
   const { login, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(getLastEmail);
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -41,8 +42,8 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-ink-950 px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <p className="font-display text-3xl text-white">Focus</p>
-          <p className="mt-2 text-sm text-mist-400/70">Tu segundo cerebro, sin fricción.</p>
+          <p className="text-3xl font-bold tracking-tight text-white">Focus</p>
+          <p className="mt-2 text-sm text-signal-light">Tu segundo cerebro, sin fricción.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="focus-card space-y-3 p-6">
