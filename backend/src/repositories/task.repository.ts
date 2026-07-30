@@ -32,7 +32,11 @@ export async function listTasks(userId: string, filters: TaskFilters): Promise<T
   const offsetIndex = params.length;
 
   const query = `
-    SELECT * FROM tasks
+    SELECT tasks.*, EXISTS (
+      SELECT 1 FROM reminders r
+      WHERE r.task_id = tasks.id AND r.status IN ('pending', 'snoozed')
+    ) AS has_reminder
+    FROM tasks
     WHERE ${conditions.join(' AND ')}
     ORDER BY
       CASE priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END,
@@ -47,7 +51,11 @@ export async function listTasks(userId: string, filters: TaskFilters): Promise<T
 
 export async function listTasksByContext(contextId: string): Promise<Task[]> {
   const result = await pool.query<Task>(
-    `SELECT * FROM tasks
+    `SELECT tasks.*, EXISTS (
+       SELECT 1 FROM reminders r
+       WHERE r.task_id = tasks.id AND r.status IN ('pending', 'snoozed')
+     ) AS has_reminder
+     FROM tasks
      WHERE context_id = $1 AND status != 'completed'
      ORDER BY
        CASE priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END,

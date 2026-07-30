@@ -1,6 +1,7 @@
 import { Context, Task } from '../../types/domain';
 import { PriorityDot } from '../ui/PriorityDot';
 import { ContextChip } from '../ui/ContextChip';
+import { ReminderIcon } from '../ui/ReminderIcon';
 import { TASK_DRAG_MIME } from '../../lib/dnd';
 
 interface TaskRowProps {
@@ -55,6 +56,7 @@ export function TaskRow({ task, context, onToggleComplete, onEdit }: TaskRowProp
           {task.title}
         </p>
         <div className="mt-1 flex items-center gap-2 text-xs text-mist-400">
+          {task.has_reminder && <ReminderIcon />}
           {task.scheduled_date && <span className="figures">{formatDate(task.scheduled_date)}</span>}
           {task.scheduled_time && <span className="figures">{task.scheduled_time}</span>}
         </div>

@@ -35,6 +35,7 @@ export interface Task {
   completed_at: Date | null;
   created_at: Date;
   updated_at: Date;
+  has_reminder?: boolean;
 }
 
 export interface Reminder {

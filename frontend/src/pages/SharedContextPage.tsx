@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useSharedContextView } from '../hooks/useContextShares';
 import { ContextChip } from '../components/ui/ContextChip';
 import { PriorityDot } from '../components/ui/PriorityDot';
+import { ReminderIcon } from '../components/ui/ReminderIcon';
 
 export function SharedContextPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,6 +41,7 @@ export function SharedContextPage() {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[15px] text-ink-950">{task.title}</p>
                 <div className="mt-1 flex items-center gap-2 text-xs text-mist-400">
+                  {task.has_reminder && <ReminderIcon />}
                   {task.scheduled_date && (
                     <span className="figures">
                       {new Date(`${task.scheduled_date}T00:00:00`).toLocaleDateString('es-ES', {
