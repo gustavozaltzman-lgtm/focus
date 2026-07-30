@@ -23,7 +23,7 @@ export function TaskRow({ task, context, hideContextChip, onToggleComplete, onEd
         event.dataTransfer.setData(TASK_DRAG_MIME, task.id);
         event.dataTransfer.effectAllowed = 'move';
       }}
-      className="group flex cursor-grab items-center gap-3 border-b border-mist-100 py-3 pl-3 pr-1 last:border-b-0 active:cursor-grabbing"
+      className="group flex cursor-grab items-center gap-3 border-b border-mist-100 py-2 pl-3 pr-1 last:border-b-0 active:cursor-grabbing"
       style={{ boxShadow: `inset 3px 0 0 0 ${edgeColor}` }}
     >
       <button

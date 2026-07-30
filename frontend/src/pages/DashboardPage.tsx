@@ -46,17 +46,17 @@ export function DashboardPage() {
   const todayGroups = groupByContext(summary?.todayTasks ?? [], contexts);
 
   return (
-    <div className="space-y-7 sm:space-y-8">
-      <div>
-        <h1 className="text-[26px] font-bold leading-tight tracking-tight text-ink-950 sm:text-[32px]">
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex items-baseline justify-between gap-3">
+        <h1 className="text-lg font-bold leading-tight tracking-tight text-ink-950 sm:text-xl">
           {greeting()}, {firstName}
         </h1>
-        <p className="figures mt-1 text-sm text-mist-500">
+        <p className="figures shrink-0 text-xs text-mist-400">
           {capitalizeFirst(
             new Date().toLocaleDateString('es-ES', {
-              weekday: 'long',
+              weekday: 'short',
               day: 'numeric',
-              month: 'long',
+              month: 'short',
             }),
           )}
         </p>
@@ -64,10 +64,10 @@ export function DashboardPage() {
 
       <div>
         <QuickCaptureBar />
-        <p className="mt-1.5 px-1 text-[11px] text-mist-400">Powered by Claude AI</p>
+        <p className="mt-1 px-1 text-[10px] text-mist-400">Powered by Claude AI</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
         <StatTile
           label="Urgentes"
           value={summary?.urgentCount ?? 0}
@@ -86,9 +86,6 @@ export function DashboardPage() {
           accentClassName="text-mist-500"
           onClick={() => setStatFilter('inbox')}
         />
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <StatTile
           label="Vencidas"
           value={summary?.overdueCount ?? 0}
@@ -96,7 +93,7 @@ export function DashboardPage() {
           onClick={() => setStatFilter('overdue')}
         />
         <StatTile
-          label="Resueltas esta semana"
+          label="Resueltas"
           value={summary?.completedThisWeekCount ?? 0}
           accentClassName="text-calm"
           onClick={() => setStatFilter('completedWeek')}
@@ -104,7 +101,7 @@ export function DashboardPage() {
       </div>
 
       <div>
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-1.5 flex items-center justify-between">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-mist-400">
             Foco de hoy
           </h2>
@@ -115,10 +112,10 @@ export function DashboardPage() {
         ) : todayGroups.length === 0 ? (
           <TaskList tasks={[]} contexts={contexts} emptyLabel="Nada urgente hoy. Disfruta el espacio." />
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-3">
             {todayGroups.map((group) => (
               <div key={group.context?.id ?? 'sin-contexto'}>
-                <div className="mb-2">
+                <div className="mb-1">
                   {group.context ? (
                     <ContextChip name={group.context.name} colorHex={group.context.color_hex} />
                   ) : (
