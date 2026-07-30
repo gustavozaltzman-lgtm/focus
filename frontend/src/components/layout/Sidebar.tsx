@@ -9,7 +9,7 @@ import { DropNavLink } from './DropNavLink';
 
 const linkBase =
   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition text-mist-400/80 hover:bg-white/5 hover:text-white';
-const linkActive = 'bg-white/10 text-white shadow-[inset_3px_0_0_0_#D9A441]';
+const linkActive = 'bg-white/10 text-white shadow-[inset_3px_0_0_0_#A3E635]';
 
 export function Sidebar() {
   const { user, logout } = useAuth();

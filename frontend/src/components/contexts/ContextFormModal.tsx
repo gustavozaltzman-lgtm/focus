@@ -5,14 +5,14 @@ import { useCreateContext, useDeleteContext, useUpdateContext } from '../../hook
 import { ContextShareSection } from './ContextShareSection';
 
 const PALETTE = [
-  '#92400E',
-  '#B5790A',
-  '#0F7A57',
-  '#0369A1',
-  '#4338CA',
-  '#A21CAF',
-  '#C4372F',
-  '#525252',
+  '#7C3AED',
+  '#EC4899',
+  '#F59E0B',
+  '#22C55E',
+  '#06B6D4',
+  '#6366F1',
+  '#E11D48',
+  '#A3E635',
 ];
 
 interface ContextFormModalProps {

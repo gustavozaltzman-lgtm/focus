@@ -76,7 +76,7 @@ async function resolveParsedContext(
 ): Promise<string | null> {
   if (contextId) return contextId;
   if (!contextName) return null;
-  const created = await createContextRecord(userId, { name: contextName, colorHex: '#92400E' });
+  const created = await createContextRecord(userId, { name: contextName, colorHex: '#7C3AED' });
   return created.id;
 }
 
