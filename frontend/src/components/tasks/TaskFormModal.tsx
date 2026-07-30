@@ -70,7 +70,7 @@ export function TaskFormModal({
     task?.scheduled_date ?? initialValues?.scheduledDate ?? '',
   );
   const [scheduledTime, setScheduledTime] = useState(
-    task?.scheduled_time ?? initialValues?.scheduledTime ?? '',
+    (task?.scheduled_time ?? initialValues?.scheduledTime ?? '').slice(0, 5),
   );
   const [error, setError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);

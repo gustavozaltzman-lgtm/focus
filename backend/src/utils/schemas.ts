@@ -42,7 +42,8 @@ export const createTaskSchema = z.object({
     .nullish(),
   scheduledTime: z
     .string()
-    .regex(/^\d{2}:\d{2}$/)
+    .regex(/^\d{2}:\d{2}(:\d{2})?$/)
+    .transform((value) => value.slice(0, 5))
     .nullish(),
 });
 
