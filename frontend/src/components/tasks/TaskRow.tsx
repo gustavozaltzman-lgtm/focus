@@ -1,6 +1,7 @@
 import { Context, Task } from '../../types/domain';
 import { PriorityDot } from '../ui/PriorityDot';
 import { ContextChip } from '../ui/ContextChip';
+import { TASK_DRAG_MIME } from '../../lib/dnd';
 
 interface TaskRowProps {
   task: Task;
@@ -15,7 +16,12 @@ export function TaskRow({ task, context, onToggleComplete, onEdit }: TaskRowProp
 
   return (
     <div
-      className="group flex items-center gap-3 border-b border-mist-100 py-3 pl-3 pr-1 last:border-b-0"
+      draggable
+      onDragStart={(event) => {
+        event.dataTransfer.setData(TASK_DRAG_MIME, task.id);
+        event.dataTransfer.effectAllowed = 'move';
+      }}
+      className="group flex cursor-grab items-center gap-3 border-b border-mist-100 py-3 pl-3 pr-1 last:border-b-0 active:cursor-grabbing"
       style={{ boxShadow: `inset 3px 0 0 0 ${edgeColor}` }}
     >
       <button

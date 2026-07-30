@@ -1,7 +1,9 @@
-import { NavLink, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useContexts } from '../../hooks/useContexts';
+import { useUpdateTask } from '../../hooks/useTasks';
 import { EnableBiometricButton } from '../auth/EnableBiometricButton';
+import { DropNavLink } from './DropNavLink';
 
 const linkBase =
   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition text-mist-400/80 hover:bg-white/5 hover:text-white';
@@ -10,6 +12,7 @@ const linkActive = 'bg-white/10 text-white shadow-[inset_3px_0_0_0_#D9A441]';
 export function Sidebar() {
   const { user, logout } = useAuth();
   const { data: contexts = [] } = useContexts();
+  const updateTask = useUpdateTask();
 
   return (
     <aside className="hidden h-full w-64 shrink-0 flex-col justify-between bg-ink-950 px-4 py-6 md:flex">
@@ -22,12 +25,37 @@ export function Sidebar() {
         </div>
 
         <nav className="flex flex-col gap-1">
-          <NavLink to="/" end className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>
+          <DropNavLink
+            to="/"
+            end
+            className={linkBase}
+            activeClassName={linkActive}
+            onDropTask={(taskId) =>
+              updateTask.mutate({ id: taskId, payload: { status: 'today' } })
+            }
+          >
             Hoy
-          </NavLink>
-          <NavLink to="/inbox" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>
+          </DropNavLink>
+          <DropNavLink
+            to="/inbox"
+            className={linkBase}
+            activeClassName={linkActive}
+            onDropTask={(taskId) =>
+              updateTask.mutate({ id: taskId, payload: { status: 'inbox' } })
+            }
+          >
             Inbox
-          </NavLink>
+          </DropNavLink>
+          <DropNavLink
+            to="/planning"
+            className={linkBase}
+            activeClassName={linkActive}
+            onDropTask={(taskId) =>
+              updateTask.mutate({ id: taskId, payload: { status: 'upcoming' } })
+            }
+          >
+            Próximamente
+          </DropNavLink>
         </nav>
 
         <div className="mb-2 mt-6 flex items-center justify-between px-3">
@@ -49,10 +77,14 @@ export function Sidebar() {
         </div>
         <nav className="flex flex-col gap-1">
           {contexts.map((context) => (
-            <NavLink
+            <DropNavLink
               key={context.id}
               to={`/contexts/${context.id}`}
-              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}
+              className={linkBase}
+              activeClassName={linkActive}
+              onDropTask={(taskId) =>
+                updateTask.mutate({ id: taskId, payload: { contextId: context.id } })
+              }
             >
               <span
                 className="h-2 w-2 shrink-0 rounded-full"
@@ -64,7 +96,7 @@ export function Sidebar() {
                   {context.active_task_count}
                 </span>
               ) : null}
-            </NavLink>
+            </DropNavLink>
           ))}
         </nav>
       </div>

@@ -6,6 +6,7 @@ import { ContextsListPage } from './pages/ContextsListPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { InboxPage } from './pages/InboxPage';
 import { LoginPage } from './pages/LoginPage';
+import { PlanningPage } from './pages/PlanningPage';
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -40,6 +41,14 @@ export default function App() {
         element={
           <ProtectedLayout>
             <InboxPage />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/planning"
+        element={
+          <ProtectedLayout>
+            <PlanningPage />
           </ProtectedLayout>
         }
       />
