@@ -31,6 +31,14 @@
    - `WEBAUTHN_RP_NAME` = `Focus` (nombre mostrado en el prompt de Face ID/huella)
    - `WEBAUTHN_ORIGIN` = URL completa del frontend (ej. `https://focus.vercel.app`,
      sin `/` final)
+   - `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` (opcional; sin estas dos, el
+     endpoint `/api/push/vapid-public-key` devuelve `null` y las alarmas push
+     quedan deshabilitadas sin romper nada más). Se generan una sola vez con:
+     ```bash
+     npx web-push generate-vapid-keys
+     ```
+   - `VAPID_SUBJECT` (opcional, default `mailto:no-reply@focus.app`) — un
+     `mailto:` de contacto que exige el protocolo Web Push.
 5. Render asigna `PORT` automáticamente; `server.ts` ya lo respeta vía `env.port`.
 6. Tras el primer deploy, correr las migraciones una vez (Render Shell o
    localmente apuntando a la `DATABASE_URL` de producción).
@@ -54,3 +62,6 @@
 - [ ] `JWT_SECRET` distinto entre entornos de desarrollo y producción
 - [ ] `WEBAUTHN_RP_ID` coincide exactamente con el hostname de producción (sin
       `https://`, sin path) o Face ID/huella no va a funcionar ahí
+- [ ] `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` configuradas si querés que las
+      alarmas suenen con la app cerrada (`GET /api/push/vapid-public-key`
+      debe devolver una key, no `null`)

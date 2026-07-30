@@ -111,17 +111,55 @@ Backend API
 
 ### Identidad visual y responsive
 
-- Tipografía: `Fraunces` (display, solo greetings/wordmark/títulos), stack
-  nativo del sistema (`-apple-system`/`SF Pro`) para texto de UI, `IBM Plex
-  Mono` para todo dato cuantitativo (fechas, horas, contadores) — la clase
-  utilitaria `.figures` marca esta convención en todo el código.
-- Color: paleta cálida "paper" (`#FBFAF7`) para el contenido, `ink-950`
-  (`#15151A`) para el sidebar/login como "lomo de cuaderno", un color de
-  contexto por fila de tarea (`box-shadow` inset de 3px en el borde izquierdo).
+- Tipografía: `Inter` para texto de UI (jerarquía por peso/tracking, sin
+  serif), `IBM Plex Mono` para todo dato cuantitativo (fechas, horas,
+  contadores) — la clase utilitaria `.figures` marca esta convención en todo
+  el código.
+- Color ("Dopamina & Energía", `tailwind.config.js`): fondo `paper` (`#FAFAFA`)
+  en todas las superficies, incluido el sidebar y el login — no hay ninguna
+  pantalla con fondo oscuro. Acento primario `signal` (coral `#FF6B6B`,
+  botones/dots/glow), `sun` (amarillo `#FFD166`, prioridad media), `calm`
+  (esmeralda, completadas), `urgent` (rojo cálido, prioridad alta/errores),
+  texto principal `ink-950` (navy `#2C3E50`, no negro puro). Un color de
+  contexto por fila de tarea (`box-shadow` inset de 3px en el borde izquierdo),
+  elegido por el usuario de una paleta fija en `ContextFormModal`.
+- Movimiento: `framer-motion` para transiciones con intención (entrada en
+  cascada de `TaskRow`/`StatTile`, bounce del check al completar, modales que
+  escalan al abrir) — nunca en el contenedor `draggable` de `TaskRow` para no
+  chocar con el drag & drop nativo HTML5 (framer intercepta `onDragStart` con
+  su propio sistema de gestos si se aplica al mismo elemento).
+- Configuración: las activaciones por dispositivo (Face ID/huella, alarmas
+  push) viven detrás de un único botón "Configuración"
+  (`layout/SettingsMenu.tsx`), no sueltas en el sidebar/header.
 - Mobile: `AppShell` oculta el `Sidebar` (`hidden md:flex`) y muestra
   `MobileHeader` + `MobileTabBar` (`md:hidden`) por debajo de 768px. El resto
   de las páginas usan grids/paddings responsive (`sm:`/`md:`) en vez de
   layouts separados por dispositivo.
+
+### Entrega de recordatorios (Web Push)
+
+Dos mecanismos independientes, uno server-side (real) y uno client-side
+(fallback visual):
+
+- **Server-side (real)**: `dispatchDueReminders()` corre cada 30s en
+  `server.ts`, busca recordatorios `pending` vencidos de todos los usuarios
+  y llama a `push.service.ts` (`web-push` + claves VAPID) para mandar una
+  notificación a cada `push_subscriptions` del usuario dueño de la tarea.
+  Llega aunque la app esté cerrada porque corre en el navegador vía el
+  Service Worker (`frontend/public/sw.js`), no en la pestaña. El recordatorio
+  se marca `sent` después de intentar el envío (no reintenta indefinidamente
+  si una suscripción quedó inválida — esos casos se limpian solos con un
+  404/410 de la API de push).
+- **Client-side (fallback)**: `ReminderWatcher` sondea `GET /reminders/due`
+  cada 20s mientras la pestaña está abierta y dispara una `Notification` del
+  navegador. Solo funciona con la app en primer plano; existía antes de Web
+  Push y se mantiene como red de seguridad visual.
+- El botón "Activar alarmas aunque la app esté cerrada" (`EnablePushButton`,
+  dentro de `SettingsMenu`) registra el service worker, pide permiso de
+  notificaciones, y sube la suscripción del navegador a
+  `POST /api/push/subscribe`. Sin `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`
+  configuradas en el backend, este flujo queda deshabilitado sin romper nada
+  (el endpoint devuelve `publicKey: null`).
 
 ## Seguridad
 

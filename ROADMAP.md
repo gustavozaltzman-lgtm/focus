@@ -12,7 +12,8 @@
 - [x] Parser con IA real (`ClaudeParser`, Anthropic SDK con tool use) con
       fallback automático a `RuleBasedParser`
 - [x] Identidad visual: Inter (jerarquía por peso/tracking, sin serif) + IBM
-      Plex Mono para datos, acento bronce/dorado, ledger-edge en tareas
+      Plex Mono para datos, acento coral/energético ("Dopamina & Energía"),
+      ledger-edge en tareas
 - [x] Responsive real: sidebar → bottom tab bar en mobile (4 pestañas: Hoy,
       Inbox, Planificar, Contextos)
 - [x] Login biométrico (Face ID / Touch ID / Windows Hello / huella) vía

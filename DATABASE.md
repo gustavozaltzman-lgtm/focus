@@ -2,7 +2,7 @@
 
 PostgreSQL puro, sin ORM. El DDL vive versionado en
 [`backend/src/database/migrations/`](./backend/src/database/migrations)
-(`001_init.sql` … `004_context_shares.sql`) y se aplica con `npm run migrate`
+(`001_init.sql` … `005_push_subscriptions.sql`) y se aplica con `npm run migrate`
 (runner idempotente respaldado por la tabla `schema_migrations`).
 
 ## Diagrama de entidades
@@ -13,6 +13,7 @@ users (1) ───< (N) tasks >─── (0..1) contexts
 tasks (1) ───< (N) reminders
 users (1) ───< (N) activity_logs >─── (0..1) tasks (SET NULL al borrar la tarea)
 users (1) ───< (N) webauthn_credentials
+users (1) ───< (N) push_subscriptions
 contexts (1) ───< (N) context_shares >─── (1) users (shared_with)
 ```
 
@@ -125,6 +126,18 @@ CREATE TABLE IF NOT EXISTS context_shares (
 
 CREATE INDEX IF NOT EXISTS idx_context_shares_context_id ON context_shares(context_id);
 CREATE INDEX IF NOT EXISTS idx_context_shares_shared_with ON context_shares(shared_with_user_id);
+
+-- 005_push_subscriptions.sql
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  endpoint TEXT NOT NULL UNIQUE,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(user_id);
 ```
 
 ## Notas de diseño
@@ -153,3 +166,8 @@ CREATE INDEX IF NOT EXISTS idx_context_shares_shared_with ON context_shares(shar
   `tasks`/`reminders` siguen scopeadas por `user_id` del dueño — un invitado
   nunca puede mutarlas via los endpoints normales, solo leer via las rutas
   `/contexts/:id/shared-view` y `/contexts/shared-with-me`.
+- **`push_subscriptions.endpoint` es `UNIQUE`**: el mismo endpoint de push
+  (identifica un navegador/dispositivo concreto) no puede duplicarse; volver a
+  suscribirse hace `ON CONFLICT (endpoint) DO UPDATE` en vez de insertar una
+  fila nueva. Si el navegador de servicio push responde 404/410 al mandar una
+  notificación, la suscripción se borra automáticamente (ya no es válida).

@@ -18,8 +18,8 @@ específico.
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | React 19, Vite, TypeScript, Tailwind CSS, React Router, TanStack Query |
-| Backend | Node.js, Express, TypeScript, `pg` (driver nativo, sin ORM), JWT |
+| Frontend | React 19, Vite, TypeScript, Tailwind CSS, React Router, TanStack Query, Framer Motion |
+| Backend | Node.js, Express, TypeScript, `pg` (driver nativo, sin ORM), JWT, `web-push` |
 | Base de datos | PostgreSQL (Neon) |
 | Deploy | Vercel (frontend) + Render (backend) + Neon (DB) |
 
