@@ -48,14 +48,24 @@ PostgreSQL (Neon)
   al service correspondiente, devuelven el status HTTP correcto.
 - `routes/`: componen middlewares + controller por endpoint.
 
-### `ai-parser.service.ts`
+### Parser de lenguaje natural
 
-Define la interfaz `NaturalLanguageParser` con un único método `parse(text, contexts)`.
-La implementación por defecto (`RuleBasedParser`) usa Regex para extraer fecha
-(hoy/mañana/día de la semana/ISO), hora, prioridad y contexto (matching contra
-`contexts.name` del usuario). Para escalar a un LLM, se implementa una nueva
-clase (`OpenAiParser`) que satisfaga la misma interfaz y se intercambia en
-`createNaturalLanguageParser()` sin tocar el resto del sistema.
+Interfaz `NaturalLanguageParser` (`ai-parser.service.ts`) con un único método
+`parse(text, contexts)`. Dos implementaciones:
+
+- **`RuleBasedParser`** (`ai-parser.service.ts`): Regex puro para extraer fecha
+  (hoy/mañana/día de la semana/ISO), hora, prioridad y contexto (matching
+  contra `contexts.name` del usuario). Cero dependencias externas, siempre
+  disponible.
+- **`ClaudeParser`** (`claude-parser.service.ts`): usa `@anthropic-ai/sdk` con
+  tool use forzado (`extract_task`) para que Claude devuelva los mismos campos
+  estructurados, con mucha más tolerancia a ambigüedad y lenguaje natural
+  variado que el motor de Regex. Si la llamada falla (red, rate limit, etc.),
+  cae automáticamente al `RuleBasedParser` — nunca bloquea la captura.
+
+`parser-factory.service.ts` decide en runtime: si `ANTHROPIC_API_KEY` está
+configurada usa `ClaudeParser`, si no, `RuleBasedParser`. El resto del sistema
+(`task.service.ts`) solo conoce la interfaz, nunca la implementación concreta.
 
 ## Frontend — flujo de datos
 

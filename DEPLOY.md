@@ -21,7 +21,10 @@
    - `JWT_EXPIRES_IN` = `7d`
    - `CORS_ORIGIN` = URL del frontend en Vercel (ej. `https://focus.vercel.app`)
    - `NODE_ENV` = `production`
-   - `OPENAI_API_KEY` (opcional, para la futura implementación con IA real)
+   - `ANTHROPIC_API_KEY` (opcional; si no se define, el parser cae al motor
+     rule-based. Con la key, la captura rápida usa Claude para interpretar
+     lenguaje natural)
+   - `ANTHROPIC_MODEL` (opcional, default `claude-haiku-4-5-20251001`)
 5. Render asigna `PORT` automáticamente; `server.ts` ya lo respeta vía `env.port`.
 6. Tras el primer deploy, correr las migraciones una vez (Render Shell o
    localmente apuntando a la `DATABASE_URL` de producción).

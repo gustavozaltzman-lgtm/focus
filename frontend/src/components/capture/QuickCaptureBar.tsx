@@ -1,9 +1,15 @@
 import { FormEvent, useState } from 'react';
 import { useQuickCapture } from '../../hooks/useTasks';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
+import { MicButton } from './MicButton';
 
 export function QuickCaptureBar() {
   const [text, setText] = useState('');
   const quickCapture = useQuickCapture();
+
+  const { isSupported: isVoiceSupported, isListening, start, stop } = useSpeechRecognition({
+    onFinalResult: (transcript) => setText(transcript),
+  });
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -29,9 +35,16 @@ export function QuickCaptureBar() {
       <input
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder='Ej. "Enviar reporte a CDI el viernes prioridad alta"'
+        placeholder={
+          isListening
+            ? 'Escuchando…'
+            : 'Ej. "Enviar reporte a CDI el viernes prioridad alta"'
+        }
         className="flex-1 border-none bg-transparent text-[15px] text-ink-950 placeholder:text-mist-400 outline-none"
       />
+      {isVoiceSupported && (
+        <MicButton isListening={isListening} onClick={isListening ? stop : start} />
+      )}
       <button
         type="submit"
         disabled={!text.trim() || quickCapture.isPending}

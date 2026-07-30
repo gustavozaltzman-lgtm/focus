@@ -9,7 +9,8 @@ interface EnvConfig {
   jwtSecret: string;
   jwtExpiresIn: string;
   corsOrigin: string;
-  openAiApiKey: string | undefined;
+  anthropicApiKey: string | undefined;
+  anthropicModel: string;
 }
 
 function requireEnv(name: string): string {
@@ -27,5 +28,6 @@ export const env: EnvConfig = {
   jwtSecret: requireEnv('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
   corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
-  openAiApiKey: process.env.OPENAI_API_KEY,
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  anthropicModel: process.env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001',
 };

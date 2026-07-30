@@ -184,6 +184,3 @@ export class RuleBasedParser implements NaturalLanguageParser {
   }
 }
 
-export function createNaturalLanguageParser(): NaturalLanguageParser {
-  return new RuleBasedParser();
-}

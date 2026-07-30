@@ -2,7 +2,7 @@ import * as taskRepo from '../repositories/task.repository';
 import * as contextRepo from '../repositories/context.repository';
 import { logActivity } from '../repositories/activity-log.repository';
 import { todayLocalISODate } from '../utils/date';
-import { createNaturalLanguageParser } from './ai-parser.service';
+import { createNaturalLanguageParser } from './parser-factory.service';
 import { createContext as createContextRecord } from './context.service';
 import { NotFoundError } from './context.service';
 import { Task, TaskPriority, TaskStatus } from '../types/domain';
