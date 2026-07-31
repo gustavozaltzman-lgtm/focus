@@ -1,3 +1,18 @@
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+// Passthrough fetch handler: sin cache offline (la app depende de datos en
+// vivo), pero Chrome/Android exige un service worker que intercepte fetch
+// para ofrecer "Agregar a pantalla de inicio".
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request));
+});
+
 self.addEventListener('push', (event) => {
   let data = { title: 'Focus', body: '' };
   try {

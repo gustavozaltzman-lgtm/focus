@@ -67,9 +67,10 @@
       endpoint de borrado).
 
 ## v1.6 — Mobile nativo / PWA
-- [ ] Manifest + service worker completo para instalar Focus como PWA en el
-      teléfono (hoy es responsive web, no instalable; el service worker que
-      existe es solo para push, ver v1.1).
+- [x] Manifest (`manifest.webmanifest`, standalone + iconos 192/512/maskable)
+      + service worker con `fetch`/`install`/`activate` registrado
+      incondicionalmente al cargar la app (`main.tsx`) — Focus es instalable
+      como PWA en Android/desktop Chrome y "Agregar a inicio" en iOS Safari.
 - [ ] Alternativa táctil al drag & drop de v1.3 (hoy no funciona en mobile).
 
 ## Ideas en evaluación (sin comprometer)

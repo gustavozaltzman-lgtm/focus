@@ -15,6 +15,21 @@ export function isPushSupported(): boolean {
   return typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window;
 }
 
+/**
+ * Registrado incondicionalmente al cargar la app (ver main.tsx): un
+ * service worker activo es requisito para que el navegador ofrezca
+ * instalar la PWA, no solo para las alarmas push.
+ */
+export async function registerServiceWorker(): Promise<void> {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+  try {
+    await navigator.serviceWorker.register('/sw.js');
+  } catch {
+    // Sin service worker no hay PWA instalable ni push, pero el resto de
+    // la app funciona igual.
+  }
+}
+
 export async function enablePushNotifications(): Promise<void> {
   if (!isPushSupported()) {
     throw new Error('Este navegador no soporta notificaciones push.');
