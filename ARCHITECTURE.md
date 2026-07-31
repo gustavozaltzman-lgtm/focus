@@ -124,17 +124,24 @@ Backend API
   contexto por fila de tarea (`box-shadow` inset de 3px en el borde izquierdo),
   elegido por el usuario de una paleta fija en `ContextFormModal`.
 - Movimiento: `framer-motion` para transiciones con intención (entrada en
-  cascada de `TaskRow`/`StatTile`, bounce del check al completar, modales que
-  escalan al abrir) — nunca en el contenedor `draggable` de `TaskRow` para no
-  chocar con el drag & drop nativo HTML5 (framer intercepta `onDragStart` con
-  su propio sistema de gestos si se aplica al mismo elemento).
+  cascada de `TaskRow`, bounce del check al completar, modales que escalan al
+  abrir) — nunca en el contenedor `draggable` de `TaskRow` para no chocar con
+  el drag & drop nativo HTML5 (framer intercepta `onDragStart` con su propio
+  sistema de gestos si se aplica al mismo elemento).
 - Configuración: las activaciones por dispositivo (Face ID/huella, alarmas
   push) viven detrás de un único botón "Configuración"
   (`layout/SettingsMenu.tsx`), no sueltas en el sidebar/header.
 - Mobile: `AppShell` oculta el `Sidebar` (`hidden md:flex`) y muestra
   `MobileHeader` + `MobileTabBar` (`md:hidden`) por debajo de 768px. El resto
   de las páginas usan grids/paddings responsive (`sm:`/`md:`) en vez de
-  layouts separados por dispositivo.
+  layouts separados por dispositivo. La home no tiene fila de KPIs — se sacó
+  porque ocupaba espacio sin aportar valor; va directo de captura rápida a
+  "Foco de hoy".
+- PWA: `manifest.webmanifest` + `public/sw.js` (`install`/`activate`/`fetch`,
+  registrado sin condiciones en `main.tsx`) hacen que Focus sea instalable
+  desde el navegador (Android Chrome ofrece "Agregar a inicio" solo; iOS
+  Safari lo tiene bajo Compartir). El manifest no cachea nada offline —
+  Focus depende de datos en vivo — solo cumple el requisito de instalabilidad.
 
 ### Entrega de recordatorios (Web Push)
 

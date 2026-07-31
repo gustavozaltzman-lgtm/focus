@@ -13,6 +13,9 @@ específico.
   fecha, prioridad y contexto; tú solo confirmas o ajustas.
 - **Un lugar para cada compromiso**: Inbox para capturar, Hoy para ejecutar,
   Contextos para agrupar por proyecto/entidad.
+- **Presente aunque la app esté cerrada**: instalable como PWA (Android/iOS/
+  desktop) y las alarmas llegan por Web Push, no dependen de tener la pestaña
+  abierta.
 
 ## Stack
 
