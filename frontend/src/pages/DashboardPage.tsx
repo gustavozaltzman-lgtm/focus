@@ -1,11 +1,10 @@
 import { QuickCaptureBar } from '../components/capture/QuickCaptureBar';
 import { TaskList } from '../components/tasks/TaskList';
 import { NewTaskButton } from '../components/tasks/NewTaskButton';
-import { ContextChip } from '../components/ui/ContextChip';
 import { useAuth } from '../context/AuthContext';
 import { useContexts } from '../hooks/useContexts';
 import { useDashboard } from '../hooks/useTasks';
-import { groupByContext } from '../lib/contextGrouping';
+import { Task } from '../types/domain';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -18,13 +17,20 @@ function capitalizeFirst(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function sortByTime(tasks: Task[]): Task[] {
+  const timed = tasks.filter((t) => t.scheduled_time);
+  const untimed = tasks.filter((t) => !t.scheduled_time);
+  timed.sort((a, b) => a.scheduled_time!.localeCompare(b.scheduled_time!));
+  return [...timed, ...untimed];
+}
+
 export function DashboardPage() {
   const { user } = useAuth();
   const { data: summary, isLoading } = useDashboard();
   const { data: contexts = [] } = useContexts();
   const firstName = user?.full_name?.split(' ')[0] ?? '';
 
-  const todayGroups = groupByContext(summary?.todayTasks ?? [], contexts);
+  const todayTasks = sortByTime(summary?.todayTasks ?? []);
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -57,23 +63,12 @@ export function DashboardPage() {
         </div>
         {isLoading ? (
           <p className="text-sm text-mist-400">Cargando…</p>
-        ) : todayGroups.length === 0 ? (
-          <TaskList tasks={[]} contexts={contexts} emptyLabel="Nada urgente hoy. Disfruta el espacio." />
         ) : (
-          <div className="space-y-3">
-            {todayGroups.map((group) => (
-              <div key={group.context?.id ?? 'sin-contexto'}>
-                <div className="mb-1">
-                  {group.context ? (
-                    <ContextChip name={group.context.name} colorHex={group.context.color_hex} />
-                  ) : (
-                    <span className="text-xs font-medium text-mist-400">Sin contexto</span>
-                  )}
-                </div>
-                <TaskList tasks={group.tasks} contexts={contexts} emptyLabel="" hideContextChip />
-              </div>
-            ))}
-          </div>
+          <TaskList
+            tasks={todayTasks}
+            contexts={contexts}
+            emptyLabel="Nada urgente hoy. Disfruta el espacio."
+          />
         )}
       </div>
     </div>
