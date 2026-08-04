@@ -6,7 +6,7 @@ import { promoteDueUpcomingTasks } from './services/task.service';
 
 const REMINDER_SWEEP_INTERVAL_MS = 5 * 60_000;
 const REMINDER_DISPATCH_INTERVAL_MS = 30_000;
-const TASK_PROMOTION_INTERVAL_MS = 10 * 60_000;
+const TASK_PROMOTION_INTERVAL_MS = 24 * 60 * 60_000;
 
 async function main(): Promise<void> {
   await checkDbConnection();

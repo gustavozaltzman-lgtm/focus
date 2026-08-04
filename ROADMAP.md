@@ -49,7 +49,7 @@
       Próximamente/un contexto en el sidebar (HTML5 DnD, solo desktop/mouse
       — sin alternativa táctil todavía).
 - [x] Promoción automática: un job server-side (`promoteDueUpcomingTasks`,
-      cada 10 min + una vez al arrancar) pasa solo a "Hoy" cualquier tarea
+      una vez por día + una vez al arrancar) pasa solo a "Hoy" cualquier tarea
       en "Próximamente" cuya `scheduled_date` ya llegó o pasó — no hace
       falta moverla a mano cuando se cumple la fecha.
 

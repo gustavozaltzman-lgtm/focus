@@ -161,9 +161,9 @@ export async function deleteTask(id: string, userId: string): Promise<void> {
 }
 
 /**
- * Corre periodicamente (ver server.ts): una tarea en "Próximamente" con
- * fecha pasa sola a "Hoy" apenas llega (o ya pasó) esa fecha, sin que el
- * usuario tenga que moverla a mano.
+ * Corre una vez por día (ver server.ts, más una corrida al arrancar): una
+ * tarea en "Próximamente" con fecha pasa sola a "Hoy" apenas llega (o ya
+ * pasó) esa fecha, sin que el usuario tenga que moverla a mano.
  */
 export async function promoteDueUpcomingTasks(): Promise<number> {
   const promoted = await taskRepo.promoteDueUpcomingTasks(todayLocalISODate());
