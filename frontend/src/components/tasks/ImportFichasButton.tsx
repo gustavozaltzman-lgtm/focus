@@ -40,7 +40,7 @@ export function ImportFichasButton() {
         type="button"
         onClick={handlePick}
         disabled={importFichas.isPending}
-        className="focus-btn-ghost px-3 py-1.5 text-xs"
+        className="focus-btn-primary shrink-0"
       >
         {importFichas.isPending ? 'Importando…' : 'Importar fichas'}
       </button>

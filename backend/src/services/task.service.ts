@@ -160,6 +160,19 @@ export async function deleteTask(id: string, userId: string): Promise<void> {
   await taskRepo.deleteTask(id, userId);
 }
 
+/**
+ * Corre periodicamente (ver server.ts): una tarea en "Próximamente" con
+ * fecha pasa sola a "Hoy" apenas llega (o ya pasó) esa fecha, sin que el
+ * usuario tenga que moverla a mano.
+ */
+export async function promoteDueUpcomingTasks(): Promise<number> {
+  const promoted = await taskRepo.promoteDueUpcomingTasks(todayLocalISODate());
+  for (const task of promoted) {
+    await logActivity({ userId: task.user_id, taskId: task.id, action: 'updated' });
+  }
+  return promoted.length;
+}
+
 export interface DashboardSummary {
   urgentCount: number;
   scheduledCount: number;

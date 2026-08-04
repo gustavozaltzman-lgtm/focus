@@ -125,6 +125,21 @@ export async function countCompletedSince(userId: string, since: Date): Promise<
   return Number(result.rows[0]?.count ?? 0);
 }
 
+export interface PromotedTask {
+  id: string;
+  user_id: string;
+}
+
+export async function promoteDueUpcomingTasks(today: string): Promise<PromotedTask[]> {
+  const result = await pool.query<PromotedTask>(
+    `UPDATE tasks SET status = 'today', updated_at = now()
+     WHERE status = 'upcoming' AND scheduled_date IS NOT NULL AND scheduled_date <= $1
+     RETURNING id, user_id`,
+    [today],
+  );
+  return result.rows;
+}
+
 export async function findTaskById(id: string, userId: string): Promise<Task | null> {
   const result = await pool.query<Task>('SELECT * FROM tasks WHERE id = $1 AND user_id = $2', [
     id,
