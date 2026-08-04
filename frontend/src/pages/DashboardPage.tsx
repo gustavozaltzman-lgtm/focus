@@ -65,7 +65,7 @@ export function DashboardPage() {
               <button
                 type="button"
                 onClick={() => setFocusMode(true)}
-                className="focus-btn-ghost px-3 py-1.5 text-xs"
+                className="focus-btn-primary shrink-0"
               >
                 Modo enfoque
               </button>
