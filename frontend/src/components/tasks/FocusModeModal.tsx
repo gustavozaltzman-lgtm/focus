@@ -33,6 +33,10 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
     setIndex((i) => i + 1);
   }
 
+  function goBack() {
+    setIndex((i) => Math.max(i - 1, 0));
+  }
+
   function handleComplete() {
     if (!current) return;
     completeTask.mutate(current.id, { onSuccess: goNext });
@@ -49,6 +53,15 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
               <span>
                 Tarea {index + 1} de {queue.length}
               </span>
+              {index > 0 && (
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="font-medium text-mist-500 transition hover:text-ink-950"
+                >
+                  ← Anterior
+                </button>
+              )}
             </div>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-mist-100">
               <div
@@ -82,9 +95,16 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
               <p className="text-sm text-mist-500">
                 {queue.length} {queue.length === 1 ? 'tarea revisada' : 'tareas revisadas'}.
               </p>
-              <button type="button" onClick={onClose} className="focus-btn-primary mt-2 px-6">
-                Cerrar
-              </button>
+              <div className="mt-2 flex items-center gap-2">
+                {queue.length > 0 && (
+                  <button type="button" onClick={goBack} className="focus-btn-ghost">
+                    ← Anterior
+                  </button>
+                )}
+                <button type="button" onClick={onClose} className="focus-btn-primary px-6">
+                  Cerrar
+                </button>
+              </div>
             </motion.div>
           ) : (
             <motion.div
