@@ -80,6 +80,7 @@ La app queda disponible en `http://localhost:5173`.
 | backend | `npm run build` / `npm start` | Compilación y arranque en producción |
 | frontend | `npm run dev` | Servidor de desarrollo Vite |
 | frontend | `npm run build` | Build de producción (`tsc -b && vite build`) |
+| backend | `npm run import-fichas -- "<ruta.txt>" [email]` | Importa "fichas" (texto estructurado `FICHA N` / `Título` / `Descripción` / `Prioridad`) a Inbox. Idempotente: correrlo de nuevo sobre el mismo archivo no duplica lo ya importado, solo agrega fichas nuevas. Ver `backend/src/scripts/import-fichas.ts`. |
 
 ## Documentación
 
