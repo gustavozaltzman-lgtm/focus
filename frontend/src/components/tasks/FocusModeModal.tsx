@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, PanInfo } from 'framer-motion';
 import { Context, Task } from '../../types/domain';
 import { Modal } from '../ui/Modal';
 import { ContextChip } from '../ui/ContextChip';
@@ -40,6 +40,16 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
   function handleComplete() {
     if (!current) return;
     completeTask.mutate(current.id, { onSuccess: goNext });
+  }
+
+  const SWIPE_THRESHOLD = 90;
+
+  function handleDragEnd(_event: unknown, info: PanInfo) {
+    if (info.offset.x <= -SWIPE_THRESHOLD) {
+      goNext();
+    } else if (info.offset.x >= SWIPE_THRESHOLD && index > 0) {
+      goBack();
+    }
   }
 
   const context = current?.context_id ? contextById.get(current.context_id) : undefined;
@@ -113,7 +123,12 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
               transition={{ duration: 0.2 }}
-              className="rounded-xl2 border border-mist-200 p-5"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.7}
+              whileDrag={{ scale: 1.02 }}
+              onDragEnd={handleDragEnd}
+              className="cursor-grab touch-pan-y rounded-xl2 border border-mist-200 p-5 active:cursor-grabbing"
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -154,6 +169,9 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
                   Editar
                 </button>
               </div>
+              <p className="mt-3 text-center text-[11px] text-mist-400">
+                Deslizá ← para pasar a la siguiente, → para volver
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
