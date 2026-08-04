@@ -1,4 +1,5 @@
 import { TaskList } from '../components/tasks/TaskList';
+import { LoadingRow } from '../components/ui/LoadingRow';
 import { useContexts } from '../hooks/useContexts';
 import { useTasks } from '../hooks/useTasks';
 import { groupByWeek } from '../lib/weekGrouping';
@@ -24,7 +25,7 @@ export function PlanningPage() {
           Próximamente
         </h2>
         {isLoadingUpcoming ? (
-          <p className="text-sm text-mist-400">Cargando…</p>
+          <LoadingRow />
         ) : weekGroups.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <p className="text-sm text-mist-400">Nada programado todavía.</p>
@@ -50,7 +51,7 @@ export function PlanningPage() {
           Algún día
         </h2>
         {isLoadingSomeday ? (
-          <p className="text-sm text-mist-400">Cargando…</p>
+          <LoadingRow />
         ) : (
           <TaskList
             tasks={someday}

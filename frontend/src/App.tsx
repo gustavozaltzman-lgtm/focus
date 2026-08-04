@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell';
+import { Spinner } from './components/ui/Spinner';
 import { useAuth } from './context/AuthContext';
 import { ContextPage } from './pages/ContextPage';
 import { ContextsListPage } from './pages/ContextsListPage';
@@ -14,7 +15,8 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-mist-50">
+      <div className="flex h-screen flex-col items-center justify-center gap-3 bg-mist-50">
+        <Spinner size="lg" />
         <p className="text-sm text-mist-400">Cargando Focus…</p>
       </div>
     );

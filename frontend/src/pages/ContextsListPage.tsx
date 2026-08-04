@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Context } from '../types/domain';
 import { useContexts } from '../hooks/useContexts';
 import { ContextFormModal } from '../components/contexts/ContextFormModal';
+import { LoadingRow } from '../components/ui/LoadingRow';
 
 export function ContextsListPage() {
   const { data: contexts = [], isLoading } = useContexts();
@@ -23,7 +24,7 @@ export function ContextsListPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-mist-400">Cargando…</p>
+        <LoadingRow />
       ) : contexts.length === 0 ? (
         <div className="focus-card px-6 py-10 text-center">
           <p className="text-sm text-mist-400">

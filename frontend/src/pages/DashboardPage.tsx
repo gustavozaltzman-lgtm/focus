@@ -4,6 +4,7 @@ import { TaskList } from '../components/tasks/TaskList';
 import { NewTaskButton } from '../components/tasks/NewTaskButton';
 import { FocusModeModal } from '../components/tasks/FocusModeModal';
 import { ContextChip } from '../components/ui/ContextChip';
+import { LoadingRow } from '../components/ui/LoadingRow';
 import { useAuth } from '../context/AuthContext';
 import { useContexts } from '../hooks/useContexts';
 import { useDashboard } from '../hooks/useTasks';
@@ -74,7 +75,7 @@ export function DashboardPage() {
           </div>
         </div>
         {isLoading ? (
-          <p className="text-sm text-mist-400">Cargando…</p>
+          <LoadingRow />
         ) : todayGroups.length === 0 ? (
           <TaskList tasks={[]} contexts={contexts} emptyLabel="Nada urgente hoy. Disfruta el espacio." />
         ) : (

@@ -3,12 +3,13 @@ import { useSharedContextView } from '../hooks/useContextShares';
 import { ContextChip } from '../components/ui/ContextChip';
 import { PriorityDot } from '../components/ui/PriorityDot';
 import { ReminderIcon } from '../components/ui/ReminderIcon';
+import { LoadingRow } from '../components/ui/LoadingRow';
 
 export function SharedContextPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useSharedContextView(id);
 
-  if (isLoading) return <p className="text-sm text-mist-400">Cargando…</p>;
+  if (isLoading) return <LoadingRow />;
   if (!data) return null;
 
   return (

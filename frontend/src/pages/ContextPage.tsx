@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { ContextChip } from '../components/ui/ContextChip';
+import { LoadingRow } from '../components/ui/LoadingRow';
 import { TaskList } from '../components/tasks/TaskList';
 import { NewTaskButton } from '../components/tasks/NewTaskButton';
 import { useContext_, useContexts } from '../hooks/useContexts';
@@ -28,7 +29,7 @@ export function ContextPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-mist-400">Cargando…</p>
+        <LoadingRow />
       ) : (
         <TaskList
           tasks={tasks}

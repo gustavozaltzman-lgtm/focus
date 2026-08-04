@@ -2,6 +2,7 @@ import { QuickCaptureBar } from '../components/capture/QuickCaptureBar';
 import { TaskList } from '../components/tasks/TaskList';
 import { NewTaskButton } from '../components/tasks/NewTaskButton';
 import { ImportFichasButton } from '../components/tasks/ImportFichasButton';
+import { LoadingRow } from '../components/ui/LoadingRow';
 import { useContexts } from '../hooks/useContexts';
 import { useTasks } from '../hooks/useTasks';
 
@@ -25,7 +26,7 @@ export function InboxPage() {
       <QuickCaptureBar />
 
       {isLoading ? (
-        <p className="text-sm text-mist-400">Cargando…</p>
+        <LoadingRow />
       ) : (
         <TaskList tasks={tasks} contexts={contexts} emptyLabel="Tu inbox está vacío." />
       )}
