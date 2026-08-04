@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { QuickCaptureBar } from '../components/capture/QuickCaptureBar';
 import { TaskList } from '../components/tasks/TaskList';
 import { NewTaskButton } from '../components/tasks/NewTaskButton';
+import { FocusModeModal } from '../components/tasks/FocusModeModal';
 import { ContextChip } from '../components/ui/ContextChip';
 import { useAuth } from '../context/AuthContext';
 import { useContexts } from '../hooks/useContexts';
 import { useDashboard } from '../hooks/useTasks';
 import { groupByContext } from '../lib/contextGrouping';
+import { sortByDate } from '../lib/taskSort';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -23,8 +26,12 @@ export function DashboardPage() {
   const { data: summary, isLoading } = useDashboard();
   const { data: contexts = [] } = useContexts();
   const firstName = user?.full_name?.split(' ')[0] ?? '';
+  const [focusMode, setFocusMode] = useState(false);
 
   const todayGroups = groupByContext(summary?.todayTasks ?? [], contexts);
+  const pendingTasks = sortByDate(
+    (summary?.todayTasks ?? []).filter((t) => t.status !== 'completed'),
+  );
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -49,11 +56,22 @@ export function DashboardPage() {
       </div>
 
       <div>
-        <div className="mb-1.5 flex items-center justify-between">
+        <div className="mb-1.5 flex items-center justify-between gap-2">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-mist-400">
             Foco de hoy
           </h2>
-          <NewTaskButton defaultStatus="today" />
+          <div className="flex items-center gap-2">
+            {pendingTasks.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setFocusMode(true)}
+                className="focus-btn-ghost px-3 py-1.5 text-xs"
+              >
+                Modo enfoque
+              </button>
+            )}
+            <NewTaskButton defaultStatus="today" />
+          </div>
         </div>
         {isLoading ? (
           <p className="text-sm text-mist-400">Cargando…</p>
@@ -76,6 +94,14 @@ export function DashboardPage() {
           </div>
         )}
       </div>
+
+      {focusMode && (
+        <FocusModeModal
+          tasks={pendingTasks}
+          contexts={contexts}
+          onClose={() => setFocusMode(false)}
+        />
+      )}
     </div>
   );
 }

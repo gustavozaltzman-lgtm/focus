@@ -4,6 +4,7 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 import { validateBody, validateQuery } from '../middlewares/validate.middleware';
 import {
   createTaskSchema,
+  importFichasSchema,
   quickCaptureSchema,
   taskQuerySchema,
   updateTaskSchema,
@@ -20,6 +21,11 @@ router.get('/:id/activity', taskController.getTaskActivity);
 router.post('/', validateBody(createTaskSchema), taskController.createTask);
 router.post('/capture', validateBody(quickCaptureSchema), taskController.quickCapture);
 router.post('/capture/preview', validateBody(quickCaptureSchema), taskController.previewCapture);
+router.post(
+  '/import-fichas',
+  validateBody(importFichasSchema),
+  taskController.importFichasFromText,
+);
 router.patch('/:id', validateBody(updateTaskSchema), taskController.updateTask);
 router.delete('/:id', taskController.deleteTask);
 

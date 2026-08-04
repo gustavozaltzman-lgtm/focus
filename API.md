@@ -108,6 +108,16 @@ Igual interpretación (crea el contexto si hace falta) pero **sin crear la
 tarea** — pensado para mostrar una confirmación editable antes de guardar.
 200 → `{ "preview": { "title", "contextId", "status", "priority", "scheduledDate", "scheduledTime" } }`
 
+### `POST /tasks/import-fichas`
+Importa texto estructurado copiado de correos (formato `FICHA N` / `Título:`
+/ `Descripción:` / `Prioridad: Alta|Media|Baja`, repetido). Crea una tarea en
+Inbox por cada ficha nueva; si ya existe una tarea con el mismo título
+(sin importar mayúsculas) para el usuario, la saltea — idempotente, se puede
+mandar el mismo texto varias veces sin duplicar. No usa el parser de IA: el
+formato ya viene estructurado, se parsea con regex.
+Body: `{ "text": "FICHA 1\n\nTítulo: ...\n\nDescripción: ...\n\nPrioridad: Alta\n..." }`
+200 → `{ "created": 3, "skipped": 1, "createdTitles": ["...", "..."] }`
+
 ### `GET /tasks/:id/activity`
 Historial de auditoría de una tarea (más reciente primero, máx 50).
 200 → `{ "activity": [{ "action", "created_at", ... }] }`

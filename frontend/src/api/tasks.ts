@@ -73,3 +73,14 @@ export async function deleteTask(id: string): Promise<void> {
 export async function completeTask(id: string): Promise<Task> {
   return updateTask(id, { status: 'completed' });
 }
+
+export interface ImportFichasResult {
+  created: number;
+  skipped: number;
+  createdTitles: string[];
+}
+
+export async function importFichas(text: string): Promise<ImportFichasResult> {
+  const { data } = await apiClient.post<ImportFichasResult>('/tasks/import-fichas', { text });
+  return data;
+}

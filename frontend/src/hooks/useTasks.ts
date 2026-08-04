@@ -72,3 +72,11 @@ export function useDeleteTask() {
     onSuccess: invalidate,
   });
 }
+
+export function useImportFichas() {
+  const invalidate = useInvalidateTasks();
+  return useMutation({
+    mutationFn: tasksApi.importFichas,
+    onSuccess: invalidate,
+  });
+}

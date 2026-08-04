@@ -73,9 +73,25 @@
       como PWA en Android/desktop Chrome y "Agregar a inicio" en iOS Safari.
 - [ ] Alternativa táctil al drag & drop de v1.3 (hoy no funciona en mobile).
 
+## v1.7 — Foco de ejecución e import externo
+- [x] Modo enfoque (`FocusModeModal`): revisa las tareas de "Foco de hoy" de
+      a una (ordenadas por fecha/hora), con Completar/Más tarde/Editar y
+      barra de progreso — en vez de tener que recorrer toda la lista a
+      simple vista.
+- [x] Botón "Importar fichas" en Inbox: el navegador lee un `.txt` local
+      (texto pegado de correos, formato `FICHA N` / `Título` / `Descripción`
+      / `Prioridad`) y lo manda a `POST /tasks/import-fichas`, que crea una
+      tarea por ficha nueva (idempotente por título). Pensado para desktop —
+      en mobile el selector de archivos es más incómodo. También existe como
+      script (`npm run import-fichas`) para uso desde línea de comandos.
+- [ ] Automatizar el import sin intervención manual (hoy hay que tocar el
+      botón o correr el script cada vez) — requeriría una Tarea Programada
+      de Windows local, ya que el backend en Render no puede leer el
+      filesystem del usuario.
+
 ## Ideas en evaluación (sin comprometer)
 - Atajos de teclado estilo Things 3 / Linear (⌘K, captura global).
 - Modo offline con sincronización diferida.
 - App móvil (React Native) reutilizando `api/` y `types/`.
-- Modo oscuro real con theme toggle (hoy el sidebar/login son oscuros por
-  diseño, pero no hay alternancia).
+- Modo oscuro real con theme toggle (hoy toda la app es clara por diseño,
+  sin alternancia).
