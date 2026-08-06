@@ -58,11 +58,11 @@ export function DashboardPage() {
       </div>
 
       <div>
-        <div className="mb-1.5 flex items-center justify-between gap-2">
+        <div className="mb-2 flex flex-col gap-2 sm:mb-1.5 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-mist-400">
             Foco de hoy
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {pendingTasks.length > 0 && <SuggestNextButton contexts={contexts} />}
             {pendingTasks.length > 0 && (
               <button
