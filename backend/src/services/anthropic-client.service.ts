@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { env } from '../config/env';
+import { getPersonalAnthropicKey, hasPersonalAnthropicKey } from './user-anthropic-key.service';
 
 type MessageParams = Anthropic.MessageCreateParamsNonStreaming;
 type MessageResponse = Anthropic.Message;
@@ -10,6 +11,12 @@ let nextClientIndex = 0;
 
 export function hasAnthropicClient(): boolean {
   return clients.length > 0;
+}
+
+/** Whether Claude is usable at all for this user: the shared server pool, or their own key. */
+export async function hasAnthropicAccess(userId: string): Promise<boolean> {
+  if (hasAnthropicClient()) return true;
+  return hasPersonalAnthropicKey(userId);
 }
 
 function isRetryableWithAnotherKey(error: unknown): boolean {
@@ -25,8 +32,22 @@ function isRetryableWithAnotherKey(error: unknown): boolean {
  * Distributes calls round-robin across keys, and fails over to the next
  * key (in order) if the current one is rate-limited, invalid, or erroring —
  * so a single exhausted/misconfigured key doesn't take the feature down.
+ *
+ * If `userId` is given and that user has their own Anthropic key configured,
+ * it's used instead of the shared pool — no rotation/failover, since it's a
+ * single key the user owns and pays for themselves.
  */
-export async function createAnthropicMessage(params: MessageParams): Promise<MessageResponse> {
+export async function createAnthropicMessage(
+  params: MessageParams,
+  userId?: string,
+): Promise<MessageResponse> {
+  if (userId) {
+    const personalKey = await getPersonalAnthropicKey(userId);
+    if (personalKey) {
+      return new Anthropic({ apiKey: personalKey }).messages.create(params);
+    }
+  }
+
   if (clients.length === 0) {
     throw new Error('No hay ninguna ANTHROPIC_API_KEY configurada');
   }

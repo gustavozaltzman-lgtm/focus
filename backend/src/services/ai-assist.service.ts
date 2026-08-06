@@ -5,12 +5,12 @@ import * as contextRepo from '../repositories/context.repository';
 import { AppError } from '../middlewares/error-handler.middleware';
 import { NotFoundError } from './context.service';
 import { Task } from '../types/domain';
-import { createAnthropicMessage, hasAnthropicClient } from './anthropic-client.service';
+import { createAnthropicMessage, hasAnthropicAccess } from './anthropic-client.service';
 
-function requireClient(): void {
-  if (!hasAnthropicClient()) {
+async function requireClient(userId: string): Promise<void> {
+  if (!(await hasAnthropicAccess(userId))) {
     throw new AppError(
-      'Esta función necesita Claude configurado (ANTHROPIC_API_KEY) y no está disponible ahora mismo.',
+      'Esta función necesita Claude configurado (una API key propia o ANTHROPIC_API_KEY del servidor) y no está disponible ahora mismo.',
       503,
     );
   }
@@ -57,7 +57,7 @@ export interface SuggestionResult {
 }
 
 export async function suggestNextTasks(userId: string): Promise<SuggestionResult> {
-  requireClient();
+  await requireClient(userId);
   const candidates = await taskRepo.listTasks(userId, {
     excludeCompleted: true,
     limit: 60,
@@ -93,7 +93,7 @@ export async function suggestNextTasks(userId: string): Promise<SuggestionResult
     tools: [SUGGEST_TOOL],
     tool_choice: { type: 'tool', name: SUGGEST_TOOL_NAME },
     messages: [{ role: 'user', content: JSON.stringify(summary) }],
-  });
+  }, userId);
 
   const toolUse = message.content.find(
     (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use',
@@ -110,25 +110,28 @@ export async function suggestNextTasks(userId: string): Promise<SuggestionResult
 }
 
 export async function draftFollowUp(userId: string, taskId: string): Promise<string> {
-  requireClient();
+  await requireClient(userId);
   const task = await taskRepo.findTaskById(taskId, userId);
   if (!task) throw new NotFoundError('Task not found');
 
-  const message = await createAnthropicMessage({
-    model: env.anthropicModel,
-    max_tokens: 400,
-    system:
-      'Redactás borradores cortos de emails de seguimiento en español, tono profesional y ' +
-      'directo, para un profesional de ventas/negocios que acaba de resolver una tarea. No ' +
-      'inventés datos que no te dieron (nombres, montos, fechas) más allá de lo que aparece en ' +
-      'el título/descripción. Devolvé solo el texto del email, sin explicaciones extra.',
-    messages: [
-      {
-        role: 'user',
-        content: `Tarea completada: "${task.title}"${task.description ? `\nDetalle: ${task.description}` : ''}\n\nRedactá el borrador de seguimiento.`,
-      },
-    ],
-  });
+  const message = await createAnthropicMessage(
+    {
+      model: env.anthropicModel,
+      max_tokens: 400,
+      system:
+        'Redactás borradores cortos de emails de seguimiento en español, tono profesional y ' +
+        'directo, para un profesional de ventas/negocios que acaba de resolver una tarea. No ' +
+        'inventés datos que no te dieron (nombres, montos, fechas) más allá de lo que aparece en ' +
+        'el título/descripción. Devolvé solo el texto del email, sin explicaciones extra.',
+      messages: [
+        {
+          role: 'user',
+          content: `Tarea completada: "${task.title}"${task.description ? `\nDetalle: ${task.description}` : ''}\n\nRedactá el borrador de seguimiento.`,
+        },
+      ],
+    },
+    userId,
+  );
 
   const textBlock = message.content.find(
     (block): block is Anthropic.TextBlock => block.type === 'text',

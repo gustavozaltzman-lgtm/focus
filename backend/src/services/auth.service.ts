@@ -17,8 +17,17 @@ export class AuthError extends Error {
 }
 
 function toPublicUser(user: User): PublicUser {
-  const { password_hash: _passwordHash, ...publicUser } = user;
-  return publicUser;
+  const {
+    password_hash: _passwordHash,
+    anthropic_api_key_encrypted,
+    anthropic_api_key_last4,
+    ...publicUser
+  } = user;
+  return {
+    ...publicUser,
+    hasAnthropicKey: Boolean(anthropic_api_key_encrypted),
+    anthropicKeyLast4: anthropic_api_key_last4,
+  };
 }
 
 export function generateToken(user: User): string {

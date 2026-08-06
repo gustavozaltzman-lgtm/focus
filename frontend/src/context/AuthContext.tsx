@@ -11,6 +11,7 @@ interface AuthContextValue {
   register: (email: string, password: string, fullName: string) => Promise<void>;
   loginWithSession: (user: User, token: string) => void;
   logout: () => void;
+  updateUser: (patch: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -57,6 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout: () => {
         clearToken();
         setUser(null);
+      },
+      updateUser: (patch) => {
+        setUser((current) => (current ? { ...current, ...patch } : current));
       },
     }),
     [user, isLoading],

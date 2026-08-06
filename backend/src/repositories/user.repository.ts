@@ -25,6 +25,28 @@ export async function createUser(params: {
   return result.rows[0];
 }
 
+export async function setUserAnthropicKey(
+  id: string,
+  encryptedKey: string,
+  last4: string,
+): Promise<void> {
+  await pool.query(
+    `UPDATE users
+     SET anthropic_api_key_encrypted = $2, anthropic_api_key_last4 = $3, updated_at = now()
+     WHERE id = $1`,
+    [id, encryptedKey, last4],
+  );
+}
+
+export async function clearUserAnthropicKey(id: string): Promise<void> {
+  await pool.query(
+    `UPDATE users
+     SET anthropic_api_key_encrypted = NULL, anthropic_api_key_last4 = NULL, updated_at = now()
+     WHERE id = $1`,
+    [id],
+  );
+}
+
 export async function updateUserProfile(
   id: string,
   params: { fullName?: string; avatarUrl?: string },

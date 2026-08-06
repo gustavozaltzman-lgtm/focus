@@ -6,6 +6,10 @@ export const registerSchema = z.object({
   fullName: z.string().min(1).max(255),
 });
 
+export const setAnthropicKeySchema = z.object({
+  apiKey: z.string().min(20).max(200),
+});
+
 export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),

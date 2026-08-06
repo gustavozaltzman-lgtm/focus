@@ -10,7 +10,7 @@ export interface ParsedTaskInput {
 }
 
 export interface NaturalLanguageParser {
-  parse(input: string, contexts: Context[]): Promise<ParsedTaskInput>;
+  parse(input: string, contexts: Context[], userId?: string): Promise<ParsedTaskInput>;
 }
 
 const WEEKDAYS_ES = [

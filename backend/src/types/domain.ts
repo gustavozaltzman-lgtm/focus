@@ -8,11 +8,19 @@ export interface User {
   password_hash: string;
   full_name: string;
   avatar_url: string | null;
+  anthropic_api_key_encrypted: string | null;
+  anthropic_api_key_last4: string | null;
   created_at: Date;
   updated_at: Date;
 }
 
-export type PublicUser = Omit<User, 'password_hash'>;
+export type PublicUser = Omit<
+  User,
+  'password_hash' | 'anthropic_api_key_encrypted' | 'anthropic_api_key_last4'
+> & {
+  hasAnthropicKey: boolean;
+  anthropicKeyLast4: string | null;
+};
 
 export interface Context {
   id: string;

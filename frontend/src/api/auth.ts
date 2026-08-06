@@ -28,3 +28,18 @@ export async function getCurrentUser(): Promise<User> {
   const { data } = await apiClient.get<{ user: User }>('/auth/me');
   return data.user;
 }
+
+export interface AnthropicKeyStatus {
+  hasAnthropicKey: boolean;
+  anthropicKeyLast4: string | null;
+}
+
+export async function setAnthropicKey(apiKey: string): Promise<AnthropicKeyStatus> {
+  const { data } = await apiClient.put<AnthropicKeyStatus>('/auth/anthropic-key', { apiKey });
+  return data;
+}
+
+export async function removeAnthropicKey(): Promise<AnthropicKeyStatus> {
+  const { data } = await apiClient.delete<AnthropicKeyStatus>('/auth/anthropic-key');
+  return data;
+}

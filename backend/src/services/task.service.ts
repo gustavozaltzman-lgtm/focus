@@ -99,7 +99,7 @@ export async function previewCaptureFromNaturalLanguage(
   rawInput: string,
 ): Promise<CapturePreview> {
   const contexts = await contextRepo.listContexts(userId);
-  const parsed = await parser.parse(rawInput, contexts);
+  const parsed = await parser.parse(rawInput, contexts, userId);
   const contextId = await resolveParsedContext(userId, parsed.contextId, parsed.contextName);
 
   return {

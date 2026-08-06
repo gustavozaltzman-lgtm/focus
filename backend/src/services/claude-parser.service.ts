@@ -67,16 +67,20 @@ function todayLocalISODate(): string {
 export class ClaudeParser implements NaturalLanguageParser {
   private readonly fallback = new RuleBasedParser();
 
-  async parse(input: string, contexts: Context[]): Promise<ParsedTaskInput> {
+  async parse(input: string, contexts: Context[], userId?: string): Promise<ParsedTaskInput> {
     try {
-      return await this.parseWithClaude(input, contexts);
+      return await this.parseWithClaude(input, contexts, userId);
     } catch (error) {
       console.error('ClaudeParser failed, falling back to rule-based parser:', error);
       return this.fallback.parse(input, contexts);
     }
   }
 
-  private async parseWithClaude(input: string, contexts: Context[]): Promise<ParsedTaskInput> {
+  private async parseWithClaude(
+    input: string,
+    contexts: Context[],
+    userId?: string,
+  ): Promise<ParsedTaskInput> {
     const contextNames = contexts.map((context) => context.name);
     const today = todayLocalISODate();
     const weekday = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
@@ -91,7 +95,7 @@ export class ClaudeParser implements NaturalLanguageParser {
       tools: [EXTRACT_TOOL],
       tool_choice: { type: 'tool', name: EXTRACT_TOOL_NAME },
       messages: [{ role: 'user', content: input }],
-    });
+    }, userId);
 
     const toolUse = message.content.find(
       (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use',
