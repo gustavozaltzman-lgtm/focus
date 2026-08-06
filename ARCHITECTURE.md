@@ -67,6 +67,29 @@ Interfaz `NaturalLanguageParser` (`ai-parser.service.ts`) con un único método
 configurada usa `ClaudeParser`, si no, `RuleBasedParser`. El resto del sistema
 (`task.service.ts`) solo conoce la interfaz, nunca la implementación concreta.
 
+### Asistencia con IA post-captura (`ai-assist.service.ts`)
+
+Dos funciones separadas del parser de captura, ambas a pedido explícito del
+usuario (nunca disparadas automáticamente ni en un polling — cada llamada
+sale del mismo `ANTHROPIC_API_KEY` compartido, así que el costo queda bajo
+control del usuario):
+
+- **`suggestNextTasks`** (`GET /tasks/suggest-next`): manda la lista de
+  tareas pendientes del usuario (título, estado, prioridad, fechas,
+  contexto) a Claude con un tool use forzado (`pick_next_actions`) para que
+  elija 2-3 y explique por qué en una frase. El resultado se puede pasar
+  directo a `FocusModeModal` para revisar solo esas.
+- **`draftFollowUp`** (`POST /tasks/:id/draft-followup`): le pasa el
+  título/descripción de una tarea puntual a Claude y pide un borrador corto
+  de email de seguimiento en español. Devuelve texto plano para copiar — la
+  app nunca manda un email por su cuenta.
+
+Ambas funciones llaman a `requireClient()`, que lanza un `AppError` 503 con
+mensaje claro si `ANTHROPIC_API_KEY` no está configurada, en vez de romper
+— mismo criterio de degradación que `parser-factory.service.ts`, salvo que
+acá no hay fallback rule-based porque no tendría sentido (elegir tareas o
+redactar un email no son tareas mecánicas).
+
 ### Autenticación biométrica (WebAuthn)
 
 `webauthn.service.ts` implementa registro y login con passkeys (Face ID, Touch
@@ -128,6 +151,13 @@ Backend API
   abrir) — nunca en el contenedor `draggable` de `TaskRow` para no chocar con
   el drag & drop nativo HTML5 (framer intercepta `onDragStart` con su propio
   sistema de gestos si se aplica al mismo elemento).
+- Modo enfoque (`FocusModeModal.tsx`): revisa las tareas pendientes de "Foco
+  de hoy" de a una (ordenadas por fecha, ignorando el agrupado por contexto
+  que usa el browse normal), con swipe horizontal (`drag="x"` de
+  framer-motion — izquierda avanza, derecha vuelve atrás) además de los
+  botones Completar/Más tarde/Editar/Anterior. `SuggestNextButton` puede
+  alimentarlo con la selección de `suggestNextTasks` en vez de la cola
+  completa.
 - Configuración: las activaciones por dispositivo (Face ID/huella, alarmas
   push) viven detrás de un único botón "Configuración"
   (`layout/SettingsMenu.tsx`), no sueltas en el sidebar/header.

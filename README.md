@@ -16,6 +16,10 @@ específico.
 - **Presente aunque la app esté cerrada**: instalable como PWA (Android/iOS/
   desktop) y las alarmas llegan por Web Push, no dependen de tener la pestaña
   abierta.
+- **La IA también ayuda a ejecutar, no solo a capturar**: además de
+  interpretar lenguaje natural al crear una tarea, Claude puede sugerir en
+  qué enfocarse ahora mismo y redactar el borrador de un seguimiento —
+  siempre a pedido explícito, nunca automático ni a tus espaldas.
 
 ## Stack
 
