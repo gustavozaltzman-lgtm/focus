@@ -32,6 +32,8 @@ export interface Task {
   priority: TaskPriority;
   scheduled_date: string | null;
   scheduled_time: string | null;
+  due_date: string | null;
+  source_ref: string | null;
   completed_at: Date | null;
   created_at: Date;
   updated_at: Date;

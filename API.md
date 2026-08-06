@@ -93,10 +93,15 @@ Body:
   "status": "inbox|today|upcoming|someday|completed",
   "priority": "low|medium|high",
   "scheduledDate": "2026-08-01",
-  "scheduledTime": "14:30"
+  "scheduledTime": "14:30",
+  "dueDate": "2026-08-20",
+  "sourceRef": "Mail de Juan Pérez, asunto: Propuesta ACME Q3"
 }
 ```
-Todos los campos salvo `title` son opcionales. 201 → `{ "task": { ... } }`
+Todos los campos salvo `title` son opcionales. `scheduledDate` es cuándo
+pensás trabajarla, `dueDate` es el vencimiento real — son independientes.
+`sourceRef` es texto libre (referencia, asunto de mail, o un link) para
+volver al origen de la tarea. 201 → `{ "task": { ... } }`
 
 ### `POST /tasks/capture`
 Captura rápida en lenguaje natural: interpreta y **guarda directo**. Body:
@@ -117,6 +122,18 @@ mandar el mismo texto varias veces sin duplicar. No usa el parser de IA: el
 formato ya viene estructurado, se parsea con regex.
 Body: `{ "text": "FICHA 1\n\nTítulo: ...\n\nDescripción: ...\n\nPrioridad: Alta\n..." }`
 200 → `{ "created": 3, "skipped": 1, "createdTitles": ["...", "..."] }`
+
+### `GET /tasks/suggest-next`
+Le pide a Claude que elija 2-3 tareas pendientes para atacar ahora
+(priorizando vencidas/por vencer, alta prioridad, y las que ya están en
+"today"). Requiere `ANTHROPIC_API_KEY` configurada — sin eso, 503.
+200 → `{ "tasks": [{ ... }], "reasoning": "..." }`
+
+### `POST /tasks/:id/draft-followup`
+Le pide a Claude un borrador corto de email de seguimiento en español,
+basado en el título/descripción de la tarea — para copiar y pegar, no se
+envía nada automáticamente. Requiere `ANTHROPIC_API_KEY`, sin eso 503.
+200 → `{ "draft": "..." }`
 
 ### `GET /tasks/:id/activity`
 Historial de auditoría de una tarea (más reciente primero, máx 50).

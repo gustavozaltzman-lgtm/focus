@@ -110,7 +110,8 @@ export async function countOverdueTasks(userId: string, today: string): Promise<
   const result = await pool.query<{ count: string }>(
     `SELECT COUNT(*)::text AS count FROM tasks
      WHERE user_id = $1 AND status != 'completed'
-       AND scheduled_date IS NOT NULL AND scheduled_date < $2`,
+       AND COALESCE(due_date, scheduled_date) IS NOT NULL
+       AND COALESCE(due_date, scheduled_date) < $2`,
     [userId, today],
   );
   return Number(result.rows[0]?.count ?? 0);
@@ -133,7 +134,9 @@ export interface PromotedTask {
 export async function promoteDueUpcomingTasks(today: string): Promise<PromotedTask[]> {
   const result = await pool.query<PromotedTask>(
     `UPDATE tasks SET status = 'today', updated_at = now()
-     WHERE status = 'upcoming' AND scheduled_date IS NOT NULL AND scheduled_date <= $1
+     WHERE status = 'upcoming'
+       AND ((scheduled_date IS NOT NULL AND scheduled_date <= $1)
+         OR (due_date IS NOT NULL AND due_date <= $1))
      RETURNING id, user_id`,
     [today],
   );
@@ -157,12 +160,14 @@ export interface CreateTaskParams {
   priority: string;
   scheduledDate: string | null;
   scheduledTime: string | null;
+  dueDate?: string | null;
+  sourceRef?: string | null;
 }
 
 export async function createTask(params: CreateTaskParams): Promise<Task> {
   const result = await pool.query<Task>(
-    `INSERT INTO tasks (user_id, context_id, title, description, status, priority, scheduled_date, scheduled_time)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO tasks (user_id, context_id, title, description, status, priority, scheduled_date, scheduled_time, due_date, source_ref)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING *`,
     [
       params.userId,
@@ -173,6 +178,8 @@ export async function createTask(params: CreateTaskParams): Promise<Task> {
       params.priority,
       params.scheduledDate,
       params.scheduledTime,
+      params.dueDate ?? null,
+      params.sourceRef ?? null,
     ],
   );
   return result.rows[0];
@@ -186,6 +193,8 @@ export interface UpdateTaskParams {
   priority?: string;
   scheduledDate?: string | null;
   scheduledTime?: string | null;
+  dueDate?: string | null;
+  sourceRef?: string | null;
 }
 
 export async function updateTask(
@@ -208,6 +217,8 @@ export async function updateTask(
   if ('priority' in params) setField('priority', params.priority);
   if ('scheduledDate' in params) setField('scheduled_date', params.scheduledDate);
   if ('scheduledTime' in params) setField('scheduled_time', params.scheduledTime);
+  if ('dueDate' in params) setField('due_date', params.dueDate);
+  if ('sourceRef' in params) setField('source_ref', params.sourceRef);
   if (params.status === 'completed') {
     setClauses.push('completed_at = now()');
   }

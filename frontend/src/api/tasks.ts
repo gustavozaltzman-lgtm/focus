@@ -51,6 +51,8 @@ export interface CreateTaskPayload {
   priority?: TaskPriority;
   scheduledDate?: string | null;
   scheduledTime?: string | null;
+  dueDate?: string | null;
+  sourceRef?: string | null;
 }
 
 export async function createTask(payload: CreateTaskPayload): Promise<Task> {
@@ -83,4 +85,19 @@ export interface ImportFichasResult {
 export async function importFichas(text: string): Promise<ImportFichasResult> {
   const { data } = await apiClient.post<ImportFichasResult>('/tasks/import-fichas', { text });
   return data;
+}
+
+export interface SuggestionResult {
+  tasks: Task[];
+  reasoning: string;
+}
+
+export async function suggestNextTasks(): Promise<SuggestionResult> {
+  const { data } = await apiClient.get<SuggestionResult>('/tasks/suggest-next');
+  return data;
+}
+
+export async function draftFollowUp(taskId: string): Promise<string> {
+  const { data } = await apiClient.post<{ draft: string }>(`/tasks/${taskId}/draft-followup`);
+  return data.draft;
 }

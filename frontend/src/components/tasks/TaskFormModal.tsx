@@ -6,6 +6,7 @@ import { useContexts } from '../../hooks/useContexts';
 import { useCreateTask, useDeleteTask, useUpdateTask } from '../../hooks/useTasks';
 import { TaskReminders } from '../reminders/TaskReminders';
 import { TaskActivityLog } from './TaskActivityLog';
+import { FollowUpDraftButton } from './FollowUpDraftButton';
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
   { value: 'inbox', label: 'Inbox' },
@@ -29,6 +30,8 @@ export interface TaskDraft {
   priority?: TaskPriority;
   scheduledDate?: string | null;
   scheduledTime?: string | null;
+  dueDate?: string | null;
+  sourceRef?: string | null;
 }
 
 interface TaskFormModalProps {
@@ -72,6 +75,8 @@ export function TaskFormModal({
   const [scheduledTime, setScheduledTime] = useState(
     (task?.scheduled_time ?? initialValues?.scheduledTime ?? '').slice(0, 5),
   );
+  const [dueDate, setDueDate] = useState(task?.due_date ?? initialValues?.dueDate ?? '');
+  const [sourceRef, setSourceRef] = useState(task?.source_ref ?? initialValues?.sourceRef ?? '');
   const [error, setError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -94,6 +99,8 @@ export function TaskFormModal({
       priority,
       scheduledDate: scheduledDate || null,
       scheduledTime: scheduledTime || null,
+      dueDate: dueDate || null,
+      sourceRef: sourceRef.trim() || null,
     };
 
     try {
@@ -213,6 +220,33 @@ export function TaskFormModal({
         </div>
 
         <div>
+          <label htmlFor="task-due-date" className="mb-1.5 block text-sm font-medium text-ink-950">
+            Fecha límite <span className="text-mist-400">(vencimiento, opcional)</span>
+          </label>
+          <input
+            id="task-due-date"
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="focus-input figures"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="task-source" className="mb-1.5 block text-sm font-medium text-ink-950">
+            Origen <span className="text-mist-400">(link o referencia al correo, opcional)</span>
+          </label>
+          <input
+            id="task-source"
+            value={sourceRef}
+            onChange={(e) => setSourceRef(e.target.value)}
+            placeholder="Ej. asunto del mail, o un link"
+            className="focus-input"
+            maxLength={2000}
+          />
+        </div>
+
+        <div>
           <label htmlFor="task-status" className="mb-1.5 block text-sm font-medium text-ink-950">
             Estado
           </label>
@@ -231,6 +265,7 @@ export function TaskFormModal({
         </div>
 
         {task && <TaskReminders taskId={task.id} />}
+        {task && <FollowUpDraftButton taskId={task.id} />}
         {task && <TaskActivityLog taskId={task.id} />}
 
         {error && <p className="text-sm text-urgent">{error}</p>}

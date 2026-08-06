@@ -3,6 +3,7 @@ import { QuickCaptureBar } from '../components/capture/QuickCaptureBar';
 import { TaskList } from '../components/tasks/TaskList';
 import { NewTaskButton } from '../components/tasks/NewTaskButton';
 import { FocusModeModal } from '../components/tasks/FocusModeModal';
+import { SuggestNextButton } from '../components/tasks/SuggestNextButton';
 import { ContextChip } from '../components/ui/ContextChip';
 import { LoadingRow } from '../components/ui/LoadingRow';
 import { useAuth } from '../context/AuthContext';
@@ -62,6 +63,7 @@ export function DashboardPage() {
             Foco de hoy
           </h2>
           <div className="flex items-center gap-2">
+            {pendingTasks.length > 0 && <SuggestNextButton contexts={contexts} />}
             {pendingTasks.length > 0 && (
               <button
                 type="button"

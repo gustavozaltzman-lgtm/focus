@@ -136,12 +136,19 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
                   {context && <ContextChip name={context.name} colorHex={context.color_hex} />}
                   {current.has_reminder && <ReminderIcon />}
                 </div>
-                {current.scheduled_date && (
-                  <span className="figures text-xs text-mist-400">
-                    {formatDate(current.scheduled_date)}
-                    {current.scheduled_time && ` · ${current.scheduled_time.slice(0, 5)}`}
-                  </span>
-                )}
+                <div className="flex flex-col items-end gap-0.5">
+                  {current.scheduled_date && (
+                    <span className="figures text-xs text-mist-400">
+                      {formatDate(current.scheduled_date)}
+                      {current.scheduled_time && ` · ${current.scheduled_time.slice(0, 5)}`}
+                    </span>
+                  )}
+                  {current.due_date && (
+                    <span className="figures text-xs font-medium text-urgent">
+                      vence {formatDate(current.due_date)}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <p className="text-lg font-semibold leading-snug text-ink-950">{current.title}</p>

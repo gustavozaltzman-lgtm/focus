@@ -2,7 +2,7 @@
 
 PostgreSQL puro, sin ORM. El DDL vive versionado en
 [`backend/src/database/migrations/`](./backend/src/database/migrations)
-(`001_init.sql` … `005_push_subscriptions.sql`) y se aplica con `npm run migrate`
+(`001_init.sql` … `006_due_date_source_ref.sql`) y se aplica con `npm run migrate`
 (runner idempotente respaldado por la tabla `schema_migrations`).
 
 ## Diagrama de entidades
@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     CHECK (priority IN ('low', 'medium', 'high')),
   scheduled_date DATE,
   scheduled_time TIME,
+  due_date DATE,
+  source_ref TEXT,
   completed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -138,6 +140,13 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
 );
 
 CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(user_id);
+
+-- 006_due_date_source_ref.sql
+ALTER TABLE tasks
+  ADD COLUMN IF NOT EXISTS due_date DATE,
+  ADD COLUMN IF NOT EXISTS source_ref TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
 ```
 
 ## Notas de diseño
@@ -171,3 +180,8 @@ CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(
   suscribirse hace `ON CONFLICT (endpoint) DO UPDATE` en vez de insertar una
   fila nueva. Si el navegador de servicio push responde 404/410 al mandar una
   notificación, la suscripción se borra automáticamente (ya no es válida).
+- **`due_date` es independiente de `scheduled_date`**: `scheduled_date` es
+  cuándo el usuario planea trabajar la tarea, `due_date` es el vencimiento
+  real. `countOverdueTasks` y `promoteDueUpcomingTasks` (Próximamente → Hoy)
+  usan `COALESCE(due_date, scheduled_date)`/ambas fechas para no depender de
+  una sola.

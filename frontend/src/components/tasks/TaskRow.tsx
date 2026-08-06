@@ -80,6 +80,13 @@ export function TaskRow({
           {task.has_reminder && <ReminderIcon />}
           {task.scheduled_date && <span className="figures">{formatDate(task.scheduled_date)}</span>}
           {task.scheduled_time && <span className="figures">{task.scheduled_time.slice(0, 5)}</span>}
+          {task.due_date && (
+            <span
+              className={`figures ${isDueSoon(task.due_date) ? 'font-medium text-urgent' : ''}`}
+            >
+              vence {formatDate(task.due_date)}
+            </span>
+          )}
         </div>
       </button>
 
@@ -94,4 +101,10 @@ export function TaskRow({
 function formatDate(isoDate: string): string {
   const date = new Date(`${isoDate}T00:00:00`);
   return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
+}
+
+function isDueSoon(dueDate: string): boolean {
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return dueDate <= today;
 }

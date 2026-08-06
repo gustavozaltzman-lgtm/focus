@@ -93,6 +93,29 @@
       de Windows local, ya que el backend en Render no puede leer el
       filesystem del usuario.
 
+## v1.8 — Diferenciales de IA para uso profesional (hecho)
+Investigado en Reddit/comparativas de apps (Todoist, TickTick, Sunsama,
+Motion) y priorizado para el caso de uso real: profesional de ventas que
+importa acciones de correos.
+- [x] `due_date` separado de `scheduled_date`: "cuándo lo voy a hacer" vs.
+      "cuándo vence de verdad", como campos independientes en el editor de
+      tarea. `countOverdueTasks` y la promoción Próximamente→Hoy consideran
+      ambas fechas.
+- [x] `source_ref`: campo de texto libre en el editor de tarea para anotar
+      de dónde salió (asunto del mail, remitente, o un link) y no perder el
+      contexto cuando se retoma más adelante.
+- [x] "¿Qué hago ahora?" (`GET /tasks/suggest-next`): Claude elige 2-3
+      tareas pendientes para atacar ya, con una razón breve, priorizando
+      vencidas/por vencer y alta prioridad. Se puede pasar directo a Modo
+      enfoque con esas tareas. Acción explícita del usuario (botón), no
+      automática — no gasta saldo de API sin que lo pidas.
+- [x] Seguimiento con IA (`POST /tasks/:id/draft-followup`): en el editor de
+      cualquier tarea existente, un botón le pide a Claude un borrador corto
+      de email de seguimiento basado en el título/descripción — para copiar
+      y pegar, nunca se envía nada automáticamente. También on-demand.
+- Ambas features de IA degradan con un mensaje claro (503) si
+  `ANTHROPIC_API_KEY` no está configurada, sin romper el resto de la app.
+
 ## Ideas en evaluación (sin comprometer)
 - Atajos de teclado estilo Things 3 / Linear (⌘K, captura global).
 - Modo offline con sincronización diferida.

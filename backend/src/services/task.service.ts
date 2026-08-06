@@ -52,6 +52,8 @@ export interface CreateTaskInput {
   priority?: TaskPriority;
   scheduledDate?: string | null;
   scheduledTime?: string | null;
+  dueDate?: string | null;
+  sourceRef?: string | null;
 }
 
 export async function createTask(userId: string, input: CreateTaskInput): Promise<Task> {
@@ -64,6 +66,8 @@ export async function createTask(userId: string, input: CreateTaskInput): Promis
     priority: input.priority ?? 'medium',
     scheduledDate: input.scheduledDate ?? null,
     scheduledTime: input.scheduledTime ?? null,
+    dueDate: input.dueDate ?? null,
+    sourceRef: input.sourceRef ?? null,
   });
   await logActivity({ userId, taskId: task.id, action: 'created' });
   return task;
@@ -136,6 +140,8 @@ export interface UpdateTaskInput {
   priority?: TaskPriority;
   scheduledDate?: string | null;
   scheduledTime?: string | null;
+  dueDate?: string | null;
+  sourceRef?: string | null;
 }
 
 export async function updateTask(

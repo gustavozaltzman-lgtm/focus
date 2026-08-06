@@ -80,3 +80,15 @@ export function useImportFichas() {
     onSuccess: invalidate,
   });
 }
+
+export function useSuggestNextTasks() {
+  return useMutation({
+    mutationFn: tasksApi.suggestNextTasks,
+  });
+}
+
+export function useDraftFollowUp() {
+  return useMutation({
+    mutationFn: tasksApi.draftFollowUp,
+  });
+}

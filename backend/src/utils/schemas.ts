@@ -45,6 +45,11 @@ export const createTaskSchema = z.object({
     .regex(/^\d{2}:\d{2}(:\d{2})?$/)
     .transform((value) => value.slice(0, 5))
     .nullish(),
+  dueDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .nullish(),
+  sourceRef: z.string().max(2000).nullish(),
 });
 
 export const updateTaskSchema = createTaskSchema.partial();

@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import * as taskService from '../services/task.service';
 import { importFichas } from '../services/fichas-import.service';
+import { draftFollowUp, suggestNextTasks } from '../services/ai-assist.service';
 import { asyncHandler } from '../utils/async-handler';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 import { AppError } from '../middlewares/error-handler.middleware';
@@ -74,5 +75,17 @@ export const importFichasFromText = asyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
     const result = await importFichas(requireUserId(req), req.body.text);
     res.status(200).json(result);
+  },
+);
+
+export const suggestNext = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const result = await suggestNextTasks(requireUserId(req));
+  res.status(200).json(result);
+});
+
+export const draftTaskFollowUp = asyncHandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const draft = await draftFollowUp(requireUserId(req), req.params.id);
+    res.status(200).json({ draft });
   },
 );
