@@ -63,9 +63,27 @@ Interfaz `NaturalLanguageParser` (`ai-parser.service.ts`) con un único método
   variado que el motor de Regex. Si la llamada falla (red, rate limit, etc.),
   cae automáticamente al `RuleBasedParser` — nunca bloquea la captura.
 
-`parser-factory.service.ts` decide en runtime: si `ANTHROPIC_API_KEY` está
-configurada usa `ClaudeParser`, si no, `RuleBasedParser`. El resto del sistema
-(`task.service.ts`) solo conoce la interfaz, nunca la implementación concreta.
+`parser-factory.service.ts` decide en runtime: si hay al menos una API key de
+Anthropic configurada usa `ClaudeParser`, si no, `RuleBasedParser`. El resto
+del sistema (`task.service.ts`) solo conoce la interfaz, nunca la
+implementación concreta.
+
+#### Pool de API keys de Anthropic (`anthropic-client.service.ts`)
+
+Punto único por el que pasan las tres llamadas a Claude del backend
+(`ClaudeParser`, `suggestNextTasks`, `draftFollowUp`). Soporta una lista de
+keys (`ANTHROPIC_API_KEYS`, separadas por coma; `ANTHROPIC_API_KEY` sigue
+funcionando como caso de una sola key) en vez de una única key fija:
+
+- **Round-robin**: cada llamada arranca por la siguiente key en la rotación,
+  para repartir el uso entre keys en vez de agotar siempre la primera.
+- **Failover**: si esa key responde 401/403 (inválida), 429 (rate-limited/sin
+  cupo) o 5xx (error transitorio de Anthropic), reintenta automáticamente con
+  la siguiente key de la lista antes de fallar. Otros errores (4xx de
+  validación del pedido) no reintentan — no tiene sentido repetir el mismo
+  pedido inválido con otra key.
+- `hasAnthropicClient()` reemplaza el chequeo directo de `env.anthropicApiKey`
+  para decidir si las features de IA están disponibles.
 
 ### Asistencia con IA post-captura (`ai-assist.service.ts`)
 

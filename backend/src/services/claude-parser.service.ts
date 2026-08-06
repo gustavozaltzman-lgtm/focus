@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { env } from '../config/env';
 import { Context, TaskPriority } from '../types/domain';
 import { NaturalLanguageParser, ParsedTaskInput, RuleBasedParser } from './ai-parser.service';
+import { createAnthropicMessage } from './anthropic-client.service';
 
 const EXTRACT_TOOL_NAME = 'extract_task';
 
@@ -64,12 +65,7 @@ function todayLocalISODate(): string {
 }
 
 export class ClaudeParser implements NaturalLanguageParser {
-  private readonly client: Anthropic;
   private readonly fallback = new RuleBasedParser();
-
-  constructor(apiKey: string) {
-    this.client = new Anthropic({ apiKey });
-  }
 
   async parse(input: string, contexts: Context[]): Promise<ParsedTaskInput> {
     try {
@@ -85,7 +81,7 @@ export class ClaudeParser implements NaturalLanguageParser {
     const today = todayLocalISODate();
     const weekday = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
 
-    const message = await this.client.messages.create({
+    const message = await createAnthropicMessage({
       model: env.anthropicModel,
       max_tokens: 512,
       system:

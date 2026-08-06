@@ -5,15 +5,15 @@ import * as contextRepo from '../repositories/context.repository';
 import { AppError } from '../middlewares/error-handler.middleware';
 import { NotFoundError } from './context.service';
 import { Task } from '../types/domain';
+import { createAnthropicMessage, hasAnthropicClient } from './anthropic-client.service';
 
-function requireClient(): Anthropic {
-  if (!env.anthropicApiKey) {
+function requireClient(): void {
+  if (!hasAnthropicClient()) {
     throw new AppError(
       'Esta función necesita Claude configurado (ANTHROPIC_API_KEY) y no está disponible ahora mismo.',
       503,
     );
   }
-  return new Anthropic({ apiKey: env.anthropicApiKey });
 }
 
 const SUGGEST_TOOL_NAME = 'pick_next_actions';
@@ -57,7 +57,7 @@ export interface SuggestionResult {
 }
 
 export async function suggestNextTasks(userId: string): Promise<SuggestionResult> {
-  const client = requireClient();
+  requireClient();
   const candidates = await taskRepo.listTasks(userId, {
     excludeCompleted: true,
     limit: 60,
@@ -82,7 +82,7 @@ export async function suggestNextTasks(userId: string): Promise<SuggestionResult
     context: t.context_id ? contextById.get(t.context_id) ?? null : null,
   }));
 
-  const message = await client.messages.create({
+  const message = await createAnthropicMessage({
     model: env.anthropicModel,
     max_tokens: 512,
     system:
@@ -110,11 +110,11 @@ export async function suggestNextTasks(userId: string): Promise<SuggestionResult
 }
 
 export async function draftFollowUp(userId: string, taskId: string): Promise<string> {
-  const client = requireClient();
+  requireClient();
   const task = await taskRepo.findTaskById(taskId, userId);
   if (!task) throw new NotFoundError('Task not found');
 
-  const message = await client.messages.create({
+  const message = await createAnthropicMessage({
     model: env.anthropicModel,
     max_tokens: 400,
     system:
