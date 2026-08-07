@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { env } from '../config/env';
+import { findUserById } from '../repositories/user.repository';
 import { getPersonalAnthropicKey, hasPersonalAnthropicKey } from './user-anthropic-key.service';
 
 type MessageParams = Anthropic.MessageCreateParamsNonStreaming;
@@ -13,10 +14,24 @@ export function hasAnthropicClient(): boolean {
   return clients.length > 0;
 }
 
-/** Whether Claude is usable at all for this user: the shared server pool, or their own key. */
+/**
+ * El pool compartido del servidor (ANTHROPIC_API_KEYS) sale de la cuenta de
+ * Anthropic de quien lo configuró — no de cada usuario. Para que otros
+ * usuarios de la app no consuman ese saldo sin saberlo, el fallback al pool
+ * queda reservado solo para ANTHROPIC_POOL_OWNER_EMAIL (si está configurada).
+ * Sin esa variable, nadie cae al pool sin key propia — hay que cargar una
+ * key personal.
+ */
+async function isSharedPoolOwner(userId: string): Promise<boolean> {
+  if (!env.anthropicPoolOwnerEmail) return false;
+  const user = await findUserById(userId);
+  return user?.email.toLowerCase() === env.anthropicPoolOwnerEmail;
+}
+
+/** Whether Claude is usable at all for this user: their own key, or the shared pool if they own it. */
 export async function hasAnthropicAccess(userId: string): Promise<boolean> {
-  if (hasAnthropicClient()) return true;
-  return hasPersonalAnthropicKey(userId);
+  if (await hasPersonalAnthropicKey(userId)) return true;
+  return hasAnthropicClient() && isSharedPoolOwner(userId);
 }
 
 function isRetryableWithAnotherKey(error: unknown): boolean {
@@ -35,7 +50,10 @@ function isRetryableWithAnotherKey(error: unknown): boolean {
  *
  * If `userId` is given and that user has their own Anthropic key configured,
  * it's used instead of the shared pool — no rotation/failover, since it's a
- * single key the user owns and pays for themselves.
+ * single key the user owns and pays for themselves. If they don't have one,
+ * the shared pool is only used when they're the pool's owner (see
+ * `isSharedPoolOwner`) — everyone else gets no Claude access until they add
+ * their own key, so nobody else's usage bills to the pool owner's account.
  */
 export async function createAnthropicMessage(
   params: MessageParams,
@@ -45,6 +63,9 @@ export async function createAnthropicMessage(
     const personalKey = await getPersonalAnthropicKey(userId);
     if (personalKey) {
       return new Anthropic({ apiKey: personalKey }).messages.create(params);
+    }
+    if (!(await isSharedPoolOwner(userId))) {
+      throw new Error('Este usuario no tiene una API key de Anthropic propia configurada');
     }
   }
 

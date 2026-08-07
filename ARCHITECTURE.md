@@ -83,7 +83,13 @@ orden, con qué key hacer el pedido:
    es la key del usuario, así que si falla se le informa a él en vez de
    consumir la key compartida del servidor a su costa.
 2. **Pool compartido del servidor** (`ANTHROPIC_API_KEYS`, separadas por
-   coma; `ANTHROPIC_API_KEY` sigue funcionando como caso de una sola key):
+   coma; `ANTHROPIC_API_KEY` sigue funcionando como caso de una sola key) —
+   **solo si el usuario es el dueño del pool** (`isSharedPoolOwner`, ver
+   abajo). Cualquier otro usuario sin key personal no cae al pool: el pedido
+   falla ahí mismo (`ClaudeParser` lo atrapa y usa `RuleBasedParser`;
+   `suggestNextTasks`/`draftFollowUp` devuelven 503), para que el consumo de
+   otros usuarios nunca salga de la cuenta de Anthropic de quien configuró
+   el pool.
    - **Round-robin**: cada llamada arranca por la siguiente key en la
      rotación, para repartir el uso entre keys en vez de agotar siempre la
      primera.
@@ -93,10 +99,15 @@ orden, con qué key hacer el pedido:
      fallar. Otros errores (4xx de validación del pedido) no reintentan —
      no tiene sentido repetir el mismo pedido inválido con otra key.
 
-`hasAnthropicAccess(userId)` (key personal o pool) y `hasAnthropicClient()`
-(solo pool, para chequeos que no tienen `userId` a mano) reemplazan el
-chequeo directo de `env.anthropicApiKey` para decidir si las features de IA
-están disponibles.
+`isSharedPoolOwner(userId)` compara el email del usuario contra
+`ANTHROPIC_POOL_OWNER_EMAIL`. Sin esa variable configurada, nadie cae al
+pool sin key propia — hay que cargar una personal.
+
+`hasAnthropicAccess(userId)` (key personal, o pool si es el dueño) y
+`hasAnthropicClient()` (solo si el pool tiene alguna key, sin mirar el
+usuario — para chequeos que no tienen `userId` a mano) reemplazan el chequeo
+directo de `env.anthropicApiKey` para decidir si las features de IA están
+disponibles.
 
 #### API key personal por usuario (`user-anthropic-key.service.ts`)
 

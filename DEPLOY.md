@@ -29,6 +29,13 @@
      round-robin y hace failover a la siguiente si una da 401/403/429/5xx —
      ver [ARCHITECTURE.md](./ARCHITECTURE.md#pool-de-api-keys-de-anthropic-anthropic-clientservicets).
      Si está definida, tiene prioridad sobre `ANTHROPIC_API_KEY`)
+   - `ANTHROPIC_POOL_OWNER_EMAIL` (opcional pero recomendada si hay más de un
+     usuario: el pool de arriba (`ANTHROPIC_API_KEY`/`ANTHROPIC_API_KEYS`)
+     sale de la cuenta de Anthropic de quien lo configuró. Sin esta
+     variable, **ningún** usuario cae al pool sin tener su propia key
+     personal cargada — con esta variable, solo el usuario con ese email
+     puede usar el pool como fallback; el resto necesita cargar la suya en
+     Configuración o usa el parser sin IA)
    - `ANTHROPIC_MODEL` (opcional, default `claude-haiku-4-5-20251001`)
    - `ENCRYPTION_KEY` (opcional pero recomendada: 32 bytes en base64, ej.
      `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.

@@ -11,6 +11,7 @@ interface EnvConfig {
   corsOrigin: string;
   anthropicApiKeys: string[];
   anthropicModel: string;
+  anthropicPoolOwnerEmail: string | undefined;
   encryptionKey: string | undefined;
   webauthnRpId: string;
   webauthnRpName: string;
@@ -59,6 +60,7 @@ export const env: EnvConfig = {
   corsOrigin,
   anthropicApiKeys: parseAnthropicApiKeys(),
   anthropicModel: process.env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001',
+  anthropicPoolOwnerEmail: process.env.ANTHROPIC_POOL_OWNER_EMAIL?.toLowerCase(),
   encryptionKey: process.env.ENCRYPTION_KEY,
   webauthnRpId: process.env.WEBAUTHN_RP_ID ?? deriveDefaultRpId(corsOrigin),
   webauthnRpName: process.env.WEBAUTHN_RP_NAME ?? 'Focus',
