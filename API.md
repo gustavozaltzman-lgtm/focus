@@ -133,9 +133,11 @@ tarea** — pensado para mostrar una confirmación editable antes de guardar.
 
 ### `POST /tasks/import-fichas`
 Importa texto estructurado copiado de correos (formato `FICHA N` — también
-acepta `FICHA #N` — / `Título:` / `Descripción:` / `Prioridad: Alta|Media|Baja`,
-repetido). Crea una tarea en
-Inbox por cada ficha nueva; si ya existe una tarea con el mismo título
+acepta `FICHA #N` — seguido de `Título:`, y opcionalmente `Descripción:`,
+`Fecha: DD/MM/YYYY`, `Contexto:`, `Estado: Hoy|Inbox|Próximamente|Algún día`,
+`Prioridad: Alta|Media|Baja` y `Fuente:`, en ese orden, repetido). Crea una
+tarea en Inbox (o en el estado/contexto indicado, creando el contexto si no
+existe) por cada ficha nueva; si ya existe una tarea con el mismo título
 (sin importar mayúsculas) para el usuario, la saltea — idempotente, se puede
 mandar el mismo texto varias veces sin duplicar. No usa el parser de IA: el
 formato ya viene estructurado, se parsea con regex.

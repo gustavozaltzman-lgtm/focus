@@ -128,6 +128,10 @@ importa acciones de correos.
       así cada usuario paga su propio consumo.
 - [x] Fix: `import-fichas` no reconocía encabezados `FICHA #N` (con
       numeral), solo `FICHA N` — el regex ahora acepta ambos formatos.
+- [x] `import-fichas` ahora también lee `Fecha`, `Contexto`, `Estado` y
+      `Fuente` de cada ficha (antes solo tomaba título/descripción/prioridad
+      y todo entraba a Inbox sin fecha ni contexto). Crea el contexto si
+      hace falta, igual que el parser de captura con IA.
 
 ## Ideas en evaluación (sin comprometer)
 - Atajos de teclado estilo Things 3 / Linear (⌘K, captura global).
