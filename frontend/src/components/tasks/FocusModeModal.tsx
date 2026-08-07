@@ -19,9 +19,16 @@ function formatDate(isoDate: string): string {
   return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
 }
 
+const CARD_VARIANTS = {
+  enter: (direction: number) => ({ opacity: 0, x: direction > 0 ? 120 : -120 }),
+  center: { opacity: 1, x: 0 },
+  exit: (direction: number) => ({ opacity: 0, x: direction > 0 ? -120 : 120 }),
+};
+
 export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps) {
   const [queue] = useState(tasks);
   const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const completeTask = useCompleteTask();
 
@@ -30,10 +37,12 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
   const done = index >= queue.length;
 
   function goNext() {
+    setDirection(1);
     setIndex((i) => i + 1);
   }
 
   function goBack() {
+    setDirection(-1);
     setIndex((i) => Math.max(i - 1, 0));
   }
 
@@ -82,12 +91,14 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
           </div>
         )}
 
-        <AnimatePresence>
+        <div className="relative overflow-hidden rounded-xl2">
+        <AnimatePresence mode="wait" custom={direction} initial={false}>
           {done ? (
             <motion.div
               key="done"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
               className="flex flex-col items-center gap-3 py-8 text-center"
             >
               <div className="animate-pop flex h-14 w-14 items-center justify-center rounded-full bg-calm text-white">
@@ -119,16 +130,18 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
           ) : (
             <motion.div
               key={current.id}
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -16 }}
-              transition={{ duration: 0.2 }}
+              custom={direction}
+              variants={CARD_VARIANTS}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: 'tween', ease: 'easeOut', duration: 0.22 }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.7}
               whileDrag={{ scale: 1.02 }}
               onDragEnd={handleDragEnd}
-              className="cursor-grab touch-pan-y rounded-xl2 border border-mist-200 p-5 active:cursor-grabbing"
+              className="cursor-grab touch-pan-y rounded-xl2 border border-mist-200 bg-white p-5 active:cursor-grabbing"
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -161,7 +174,7 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
                   type="button"
                   onClick={handleComplete}
                   disabled={completeTask.isPending}
-                  className="focus-btn-primary flex-1"
+                  className="focus-btn-primary flex-1 bg-calm hover:bg-calm hover:shadow-none hover:brightness-90"
                 >
                   Completar
                 </button>
@@ -182,6 +195,7 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </Modal>
 
       {editingTask && (
