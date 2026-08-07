@@ -63,27 +63,60 @@ Interfaz `NaturalLanguageParser` (`ai-parser.service.ts`) con un único método
   variado que el motor de Regex. Si la llamada falla (red, rate limit, etc.),
   cae automáticamente al `RuleBasedParser` — nunca bloquea la captura.
 
-`parser-factory.service.ts` decide en runtime: si hay al menos una API key de
-Anthropic configurada usa `ClaudeParser`, si no, `RuleBasedParser`. El resto
-del sistema (`task.service.ts`) solo conoce la interfaz, nunca la
+`parser-factory.service.ts` siempre devuelve `ClaudeParser`: como ese parser
+ya cae solo a `RuleBasedParser` ante cualquier falla (sin key global, sin key
+personal, error de red, etc.), y la key personal de cada usuario solo se
+conoce por pedido (`userId`), no al arrancar el proceso, la decisión
+"¿hay IA disponible?" ya no puede tomarse una sola vez al boot — se resuelve
+en cada llamada dentro de `anthropic-client.service.ts`. El resto del sistema
+(`task.service.ts`) solo conoce la interfaz `NaturalLanguageParser`, nunca la
 implementación concreta.
 
 #### Pool de API keys de Anthropic (`anthropic-client.service.ts`)
 
 Punto único por el que pasan las tres llamadas a Claude del backend
-(`ClaudeParser`, `suggestNextTasks`, `draftFollowUp`). Soporta una lista de
-keys (`ANTHROPIC_API_KEYS`, separadas por coma; `ANTHROPIC_API_KEY` sigue
-funcionando como caso de una sola key) en vez de una única key fija:
+(`ClaudeParser`, `suggestNextTasks`, `draftFollowUp`). Resuelve, en este
+orden, con qué key hacer el pedido:
 
-- **Round-robin**: cada llamada arranca por la siguiente key en la rotación,
-  para repartir el uso entre keys en vez de agotar siempre la primera.
-- **Failover**: si esa key responde 401/403 (inválida), 429 (rate-limited/sin
-  cupo) o 5xx (error transitorio de Anthropic), reintenta automáticamente con
-  la siguiente key de la lista antes de fallar. Otros errores (4xx de
-  validación del pedido) no reintentan — no tiene sentido repetir el mismo
-  pedido inválido con otra key.
-- `hasAnthropicClient()` reemplaza el chequeo directo de `env.anthropicApiKey`
-  para decidir si las features de IA están disponibles.
+1. **Key personal del usuario** (si `userId` la tiene configurada vía `PUT
+   /auth/anthropic-key`): se usa esa única key, sin rotación ni failover —
+   es la key del usuario, así que si falla se le informa a él en vez de
+   consumir la key compartida del servidor a su costa.
+2. **Pool compartido del servidor** (`ANTHROPIC_API_KEYS`, separadas por
+   coma; `ANTHROPIC_API_KEY` sigue funcionando como caso de una sola key):
+   - **Round-robin**: cada llamada arranca por la siguiente key en la
+     rotación, para repartir el uso entre keys en vez de agotar siempre la
+     primera.
+   - **Failover**: si esa key responde 401/403 (inválida), 429
+     (rate-limited/sin cupo) o 5xx (error transitorio de Anthropic),
+     reintenta automáticamente con la siguiente key de la lista antes de
+     fallar. Otros errores (4xx de validación del pedido) no reintentan —
+     no tiene sentido repetir el mismo pedido inválido con otra key.
+
+`hasAnthropicAccess(userId)` (key personal o pool) y `hasAnthropicClient()`
+(solo pool, para chequeos que no tienen `userId` a mano) reemplazan el
+chequeo directo de `env.anthropicApiKey` para decidir si las features de IA
+están disponibles.
+
+#### API key personal por usuario (`user-anthropic-key.service.ts`)
+
+Cada usuario puede cargar su propia API key de Anthropic desde Configuración
+(`AnthropicKeyForm.tsx` en el frontend, `PUT`/`DELETE /auth/anthropic-key` en
+el backend) para que su consumo de IA salga de su propia cuenta, no de la del
+servidor:
+
+- Se cifra en reposo con AES-256-GCM (`crypto.service.ts`) usando la clave
+  simétrica `ENCRYPTION_KEY` del servidor (32 bytes en base64) — nunca se
+  guarda en texto plano. Sin `ENCRYPTION_KEY` configurada, guardar una key
+  personal devuelve 503 (mismo criterio de degradación que el resto de las
+  features de IA).
+  Ver [DATABASE.md](./DATABASE.md) para las columnas (`anthropic_api_key_encrypted`,
+  `anthropic_api_key_last4`).
+- Solo se guardan/exponen los últimos 4 caracteres en texto plano
+  (`anthropic_api_key_last4`) para mostrar en la UI ("termina en ab12") sin
+  descifrar en cada carga.
+- Se valida que la key tenga el prefijo `sk-ant-` antes de guardarla (422 si
+  no).
 
 ### Asistencia con IA post-captura (`ai-assist.service.ts`)
 

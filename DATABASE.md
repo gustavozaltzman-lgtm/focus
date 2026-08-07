@@ -2,7 +2,7 @@
 
 PostgreSQL puro, sin ORM. El DDL vive versionado en
 [`backend/src/database/migrations/`](./backend/src/database/migrations)
-(`001_init.sql` … `006_due_date_source_ref.sql`) y se aplica con `npm run migrate`
+(`001_init.sql` … `007_user_anthropic_key.sql`) y se aplica con `npm run migrate`
 (runner idempotente respaldado por la tabla `schema_migrations`).
 
 ## Diagrama de entidades
@@ -147,6 +147,11 @@ ALTER TABLE tasks
   ADD COLUMN IF NOT EXISTS source_ref TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+
+-- 007_user_anthropic_key.sql
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS anthropic_api_key_encrypted TEXT,
+  ADD COLUMN IF NOT EXISTS anthropic_api_key_last4 VARCHAR(8);
 ```
 
 ## Notas de diseño
@@ -185,3 +190,9 @@ CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
   real. `countOverdueTasks` y `promoteDueUpcomingTasks` (Próximamente → Hoy)
   usan `COALESCE(due_date, scheduled_date)`/ambas fechas para no depender de
   una sola.
+- **`anthropic_api_key_encrypted`** guarda la API key personal de Anthropic
+  del usuario cifrada con AES-256-GCM (`crypto.service.ts`, clave simétrica
+  `ENCRYPTION_KEY` del servidor) — nunca en texto plano. `anthropic_api_key_last4`
+  duplica solo los últimos 4 caracteres sin cifrar, para poder mostrarla en la
+  UI ("termina en ab12") sin tener que descifrar en cada carga de página. Ver
+  [ARCHITECTURE.md](./ARCHITECTURE.md#pool-de-api-keys-de-anthropic-anthropic-clientservicets).

@@ -116,6 +116,19 @@ importa acciones de correos.
 - Ambas features de IA degradan con un mensaje claro (503) si
   `ANTHROPIC_API_KEY` no está configurada, sin romper el resto de la app.
 
+## v1.9 — Resiliencia y costo de IA (hecho)
+- [x] Pool multi-key de Anthropic (`ANTHROPIC_API_KEYS`, separadas por coma):
+      reparte las llamadas round-robin entre varias keys y hace failover
+      automático a la siguiente si una da 401/403/429/5xx, para no depender
+      de una sola key del servidor.
+- [x] API key personal de Anthropic por usuario: cada uno puede cargar la
+      suya desde Configuración (cifrada en reposo con `ENCRYPTION_KEY`,
+      AES-256-GCM); si está configurada, se usa en vez del pool compartido
+      del servidor para captura con IA, "¿Qué hago ahora?" y seguimiento —
+      así cada usuario paga su propio consumo.
+- [x] Fix: `import-fichas` no reconocía encabezados `FICHA #N` (con
+      numeral), solo `FICHA N` — el regex ahora acepta ambos formatos.
+
 ## Ideas en evaluación (sin comprometer)
 - Atajos de teclado estilo Things 3 / Linear (⌘K, captura global).
 - Modo offline con sincronización diferida.

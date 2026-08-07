@@ -14,7 +14,13 @@ Body:
 ```
 201 →
 ```json
-{ "user": { "id": "...", "email": "...", "full_name": "...", "avatar_url": null }, "token": "..." }
+{
+  "user": {
+    "id": "...", "email": "...", "full_name": "...", "avatar_url": null,
+    "hasAnthropicKey": false, "anthropicKeyLast4": null
+  },
+  "token": "..."
+}
 ```
 
 ### `POST /auth/login`
@@ -23,6 +29,18 @@ Body: `{ "email": "...", "password": "..." }`
 
 ### `GET /auth/me`
 200 → `{ "user": { ... } }`
+
+### `PUT /auth/anthropic-key`
+Guarda (o reemplaza) la API key personal de Anthropic del usuario autenticado,
+cifrada en reposo. Body: `{ "apiKey": "sk-ant-..." }`. 422 si no tiene el
+formato esperado (`sk-ant-...`). 503 si el backend no tiene `ENCRYPTION_KEY`
+configurada.
+200 → `{ "hasAnthropicKey": true, "anthropicKeyLast4": "ab12" }`
+
+### `DELETE /auth/anthropic-key`
+Quita la API key personal del usuario (vuelve a depender de la key
+compartida del servidor, si hay una configurada).
+200 → `{ "hasAnthropicKey": false, "anthropicKeyLast4": null }`
 
 ## Contexts
 
@@ -114,8 +132,9 @@ tarea** — pensado para mostrar una confirmación editable antes de guardar.
 200 → `{ "preview": { "title", "contextId", "status", "priority", "scheduledDate", "scheduledTime" } }`
 
 ### `POST /tasks/import-fichas`
-Importa texto estructurado copiado de correos (formato `FICHA N` / `Título:`
-/ `Descripción:` / `Prioridad: Alta|Media|Baja`, repetido). Crea una tarea en
+Importa texto estructurado copiado de correos (formato `FICHA N` — también
+acepta `FICHA #N` — / `Título:` / `Descripción:` / `Prioridad: Alta|Media|Baja`,
+repetido). Crea una tarea en
 Inbox por cada ficha nueva; si ya existe una tarea con el mismo título
 (sin importar mayúsculas) para el usuario, la saltea — idempotente, se puede
 mandar el mismo texto varias veces sin duplicar. No usa el parser de IA: el
@@ -126,13 +145,16 @@ Body: `{ "text": "FICHA 1\n\nTítulo: ...\n\nDescripción: ...\n\nPrioridad: Alt
 ### `GET /tasks/suggest-next`
 Le pide a Claude que elija 2-3 tareas pendientes para atacar ahora
 (priorizando vencidas/por vencer, alta prioridad, y las que ya están en
-"today"). Requiere `ANTHROPIC_API_KEY` configurada — sin eso, 503.
+"today"). Requiere que el usuario tenga una API key propia (`PUT
+/auth/anthropic-key`) o que el servidor tenga `ANTHROPIC_API_KEY`/
+`ANTHROPIC_API_KEYS` configurada — sin ninguna de las dos, 503.
 200 → `{ "tasks": [{ ... }], "reasoning": "..." }`
 
 ### `POST /tasks/:id/draft-followup`
 Le pide a Claude un borrador corto de email de seguimiento en español,
 basado en el título/descripción de la tarea — para copiar y pegar, no se
-envía nada automáticamente. Requiere `ANTHROPIC_API_KEY`, sin eso 503.
+envía nada automáticamente. Mismo requisito de API key que `suggest-next`,
+sin eso 503.
 200 → `{ "draft": "..." }`
 
 ### `GET /tasks/:id/activity`

@@ -21,10 +21,20 @@
    - `JWT_EXPIRES_IN` = `7d`
    - `CORS_ORIGIN` = URL del frontend en Vercel (ej. `https://focus.vercel.app`)
    - `NODE_ENV` = `production`
-   - `ANTHROPIC_API_KEY` (opcional; si no se define, el parser cae al motor
-     rule-based. Con la key, la captura rápida usa Claude para interpretar
-     lenguaje natural)
+   - `ANTHROPIC_API_KEY` (opcional; si no se define ni hay usuarios con key
+     personal propia, el parser cae al motor rule-based. Con la key, la
+     captura rápida usa Claude para interpretar lenguaje natural)
+   - `ANTHROPIC_API_KEYS` (opcional, alternativa a la anterior: varias keys
+     separadas por coma. El backend reparte las llamadas entre ellas
+     round-robin y hace failover a la siguiente si una da 401/403/429/5xx —
+     ver [ARCHITECTURE.md](./ARCHITECTURE.md#pool-de-api-keys-de-anthropic-anthropic-clientservicets).
+     Si está definida, tiene prioridad sobre `ANTHROPIC_API_KEY`)
    - `ANTHROPIC_MODEL` (opcional, default `claude-haiku-4-5-20251001`)
+   - `ENCRYPTION_KEY` (opcional pero recomendada: 32 bytes en base64, ej.
+     `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
+     Sin esto, cada usuario no puede cargar su propia API key personal de
+     Anthropic desde Configuración — esa función devuelve 503 — pero el resto
+     de la app funciona igual)
    - `WEBAUTHN_RP_ID` = dominio del frontend sin protocolo (ej. `focus.vercel.app`;
      en local es `localhost`). Debe coincidir exactamente con el hostname donde
      corre la SPA o el navegador rechaza el registro/login biométrico.
@@ -65,3 +75,5 @@
 - [ ] `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` configuradas si querés que las
       alarmas suenen con la app cerrada (`GET /api/push/vapid-public-key`
       debe devolver una key, no `null`)
+- [ ] `ENCRYPTION_KEY` configurada si vas a usar API keys personales por
+      usuario (`PUT /api/auth/anthropic-key` no debe devolver 503)
