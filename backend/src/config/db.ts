@@ -6,7 +6,7 @@ types.setTypeParser(DATE_OID, (value: string) => value);
 
 export const pool = new Pool({
   connectionString: env.databaseUrl,
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: true },
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
