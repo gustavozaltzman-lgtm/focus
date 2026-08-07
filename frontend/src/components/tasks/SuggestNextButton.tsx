@@ -29,7 +29,14 @@ export function SuggestNextButton({ contexts }: { contexts: Context[] }) {
 
   return (
     <>
-      <button type="button" onClick={handleClick} className="focus-btn-ghost shrink-0">
+      <button
+        type="button"
+        onClick={handleClick}
+        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-signal-soft px-4 py-2.5 text-sm font-semibold text-signal shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-signal hover:text-white hover:shadow-glow active:translate-y-0 active:scale-[0.98]"
+      >
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
+          <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" />
+        </svg>
         ¿Qué hago ahora?
       </button>
 
