@@ -84,3 +84,6 @@
       debe devolver una key, no `null`)
 - [ ] `ENCRYPTION_KEY` configurada si vas a usar API keys personales por
       usuario (`PUT /api/auth/anthropic-key` no debe devolver 503)
+- [ ] `ANTHROPIC_POOL_OWNER_EMAIL` configurada con tu email si hay más de un
+      usuario en la app — sin esto nadie (ni vos) cae al pool compartido sin
+      key propia; con ella, solo vos

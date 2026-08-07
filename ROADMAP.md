@@ -132,6 +132,42 @@ importa acciones de correos.
       `Fuente` de cada ficha (antes solo tomaba título/descripción/prioridad
       y todo entraba a Inbox sin fecha ni contexto). Crea el contexto si
       hace falta, igual que el parser de captura con IA.
+- [x] El fallback al pool compartido (`ANTHROPIC_API_KEYS`) queda reservado
+      a `ANTHROPIC_POOL_OWNER_EMAIL` — se detectó que cualquier usuario sin
+      key propia estaba usando el pool (y por lo tanto el saldo de Anthropic
+      de quien lo configuró) sin que nadie se lo pidiera. Sin esa variable,
+      nadie cae al pool sin key personal.
+
+## v1.10 — Auditoría de seguridad (hecho)
+Auditoría completa antes de compartir la app con un segundo usuario. Todos
+los hallazgos, de Alta a Baja, resueltos el mismo día:
+
+- [x] **Alta** — control de acceso roto: `createTask`/`updateTask` no
+      validaban que un `contextId` recibido perteneciera al usuario
+      autenticado. Alguien con acceso de solo lectura a un contexto
+      compartido podía inyectarle tareas propias, porque la vista de
+      contexto compartido no filtra por dueño de la tarea. Fix:
+      `assertOwnsContext` en `task.service.ts`.
+- [x] **Media** — `rejectUnauthorized: false` en la conexión a Postgres
+      (sin verificación de certificado TLS); `trust proxy` ausente en
+      Express (rate limiter podía contar por la IP del proxy de Render en
+      vez de la del cliente); `react-router-dom` desactualizado con CVEs —
+      migrado de 6.25 a 7.18 (breaking, sin cambios de código necesarios).
+- [x] **Baja** — algoritmo JWT fijado a `HS256` en sign/verify; enumeración
+      de usuarios vía `/webauthn/login/options` cerrada (misma respuesta
+      200 exista o no el email); logs de Anthropic sin el objeto de error
+      completo; `helmet()` con cabeceras de seguridad estándar; `TtlMap`
+      con expiración de 5 min para los challenges de WebAuthn (antes
+      crecían sin límite); `.claude/` agregado a `.gitignore`.
+- [x] Ver/revocar passkeys registradas: `DELETE /api/webauthn/devices/:id`
+      y una lista simple en Configuración (`BiometricDevicesList.tsx`) con
+      botón "Quitar" por dispositivo — quedaba pendiente desde v1.5.
+- [x] Fix: transición entre tarjetas en Modo enfoque "rebotaba" en mobile —
+      la animación de salida se quedaba corta contra lo que ya se había
+      arrastrado. Ahora es direccional y el contenedor recorta el
+      desborde durante el swipe.
+- [x] Botones "¿Qué hago ahora?" (coral) y "Completar" en Modo enfoque
+      (verde) con su propio color en vez del gris "ghost" genérico.
 
 ## Ideas en evaluación (sin comprometer)
 - Atajos de teclado estilo Things 3 / Linear (⌘K, captura global).
