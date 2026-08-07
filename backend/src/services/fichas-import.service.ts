@@ -23,13 +23,13 @@ function mapPriority(raw: string | undefined): TaskPriority {
 
 /**
  * Parsea texto con fichas copiadas de correos, formato repetido:
- *   FICHA <n>
+ *   FICHA <n>  (también acepta "FICHA #<n>")
  *   Título: ...
  *   Descripción: ...
  *   Prioridad: Alta|Media|Baja
  */
 export function parseFichas(text: string): ParsedFicha[] {
-  const blocks = text.split(/^FICHA\s+\d+\s*$/m).slice(1);
+  const blocks = text.split(/^FICHA\s+#?\d+\s*$/m).slice(1);
   const fichas: ParsedFicha[] = [];
 
   for (const block of blocks) {
