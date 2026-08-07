@@ -44,6 +44,18 @@ export async function getTaskActivity(id: string, userId: string): Promise<Activ
   return listActivityForTask(id, 50);
 }
 
+/**
+ * Un contextId viene del body del cliente en create/update — sin este chequeo,
+ * cualquier usuario autenticado podría asignarle a una tarea propia el
+ * contextId de un contexto ajeno (ej. uno que le compartieron de solo
+ * lectura) y colarla en `listTasksByContext`, que no filtra por dueño de la
+ * tarea. Ver ARCHITECTURE.md.
+ */
+async function assertOwnsContext(userId: string, contextId: string): Promise<void> {
+  const context = await contextRepo.findContextById(contextId, userId);
+  if (!context) throw new NotFoundError('Context not found');
+}
+
 export interface CreateTaskInput {
   title: string;
   description?: string | null;
@@ -57,6 +69,7 @@ export interface CreateTaskInput {
 }
 
 export async function createTask(userId: string, input: CreateTaskInput): Promise<Task> {
+  if (input.contextId) await assertOwnsContext(userId, input.contextId);
   const task = await taskRepo.createTask({
     userId,
     contextId: input.contextId ?? null,
@@ -149,6 +162,7 @@ export async function updateTask(
   userId: string,
   input: UpdateTaskInput,
 ): Promise<Task> {
+  if (input.contextId) await assertOwnsContext(userId, input.contextId);
   const updated = await taskRepo.updateTask(id, userId, input);
   if (!updated) throw new NotFoundError('Task not found');
   await logActivity({
