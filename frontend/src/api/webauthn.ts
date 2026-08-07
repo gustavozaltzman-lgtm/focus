@@ -34,6 +34,10 @@ export async function fetchDevices(): Promise<WebauthnDevice[]> {
   return data.devices;
 }
 
+export async function revokeDevice(id: string): Promise<void> {
+  await apiClient.delete(`/webauthn/devices/${id}`);
+}
+
 export async function fetchAuthenticationOptions(
   email: string,
 ): Promise<PublicKeyCredentialRequestOptionsJSON> {

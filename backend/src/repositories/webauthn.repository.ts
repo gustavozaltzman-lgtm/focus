@@ -67,3 +67,11 @@ export async function updateCredentialCounter(credentialId: string, counter: num
     [credentialId, counter],
   );
 }
+
+export async function deleteCredential(id: string, userId: string): Promise<boolean> {
+  const result = await pool.query('DELETE FROM webauthn_credentials WHERE id = $1 AND user_id = $2', [
+    id,
+    userId,
+  ]);
+  return (result.rowCount ?? 0) > 0;
+}

@@ -164,8 +164,17 @@ ID, Windows Hello, huella de Android) usando `@simplewebauthn/server`:
 - **Login** (`POST /api/webauthn/login/*`, público): dado un email, busca sus
   credenciales, genera un challenge de autenticación, verifica la firma y
   devuelve el mismo `{ user, token }` que el login con contraseña.
-- Los challenges en tránsito viven en un `Map` en memoria del proceso (no en
-  DB) — suficiente para una sola instancia; si el backend escala a múltiples
+  `createAuthenticationOptions` responde 200 con opciones tanto si el email
+  no existe como si existe pero no tiene biometría (con `allowCredentials`
+  vacío en ese caso) — a propósito, para que este endpoint no sirva para
+  enumerar qué emails están registrados en la app.
+- **Revocación** (`DELETE /api/webauthn/devices/:id`, autenticado): borra una
+  passkey propia (404 si no existe o es de otro usuario). UI en
+  `BiometricDevicesList.tsx`, dentro de Configuración.
+- Los challenges en tránsito viven en un `TtlMap` en memoria del proceso (no
+  en DB) — cada entrada expira a los 5 minutos aunque la ceremonia de
+  registro/login se abandone a mitad de camino, para no crecer sin límite.
+  Suficiente para una sola instancia; si el backend escala a múltiples
   instancias, hay que moverlos a un store compartido (Redis, tabla con TTL).
 - `WEBAUTHN_RP_ID`/`WEBAUTHN_ORIGIN` deben coincidir exactamente con el
   dominio real del frontend en cada entorno.
@@ -263,8 +272,23 @@ Dos mecanismos independientes, uno server-side (real) y uno client-side
 ## Seguridad
 
 - Contraseñas con `bcryptjs` (12 rounds).
-- JWT firmado con `JWT_SECRET`, expiración configurable (`JWT_EXPIRES_IN`).
+- JWT firmado con `JWT_SECRET`, algoritmo fijado a `HS256` (tanto al firmar
+  como al verificar, para no depender del `alg` que declare el propio
+  token), expiración configurable (`JWT_EXPIRES_IN`).
 - Todas las consultas usan parámetros posicionales (`$1`) — cero interpolación
   de strings en SQL, cero superficie de SQL Injection.
-- Rate limiting en `/api` (300 req/15min) y endurecido en `/api/auth` (20 req/15min).
-- CORS restringido a `CORS_ORIGIN`.
+- Toda tarea que trae `contextId` en el body (crear o editar) valida que ese
+  contexto sea del usuario autenticado (`assertOwnsContext` en
+  `task.service.ts`) antes de guardar — si no, un usuario con acceso de
+  solo lectura a un contexto compartido podría inyectar tareas propias ahí,
+  porque la vista de contexto compartido no filtra por dueño de la tarea.
+- Rate limiting en `/api` (300 req/15min) y endurecido en `/api/auth` (20 req/15min);
+  `trust proxy` activado en producción para que cuente por IP real del
+  cliente detrás del proxy de Render, no por la IP del proxy.
+- CORS restringido a `CORS_ORIGIN`. `helmet()` agrega cabeceras de seguridad
+  estándar (HSTS, `X-Content-Type-Options`, etc.); `Cross-Origin-Resource-Policy`
+  se fuerza a `cross-origin` porque el default de helmet (`same-origin`)
+  haría que el navegador descarte las respuestas pedidas desde el frontend
+  en Vercel, aunque CORS las permita — CORP es un mecanismo aparte.
+- Conexión a Postgres con `rejectUnauthorized: true` — valida el certificado
+  TLS del servidor (Neon), no solo cifra el tráfico.

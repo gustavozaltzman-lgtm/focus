@@ -16,7 +16,7 @@ export function authMiddleware(req: AuthenticatedRequest, res: Response, next: N
 
   const token = header.slice('Bearer '.length);
   try {
-    const payload = jwt.verify(token, env.jwtSecret) as JwtPayload;
+    const payload = jwt.verify(token, env.jwtSecret, { algorithms: ['HS256'] }) as JwtPayload;
     req.user = payload;
     next();
   } catch {

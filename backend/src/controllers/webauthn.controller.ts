@@ -33,6 +33,11 @@ export const listDevices = asyncHandler(async (req: AuthenticatedRequest, res: R
   res.status(200).json({ devices });
 });
 
+export const revokeDevice = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  await webauthnService.revokeDevice(req.params.id, requireUserId(req));
+  res.status(204).send();
+});
+
 export const getAuthenticationOptions = asyncHandler(async (req, res: Response) => {
   const options = await webauthnService.createAuthenticationOptions(req.body.email);
   res.status(200).json(options);

@@ -66,9 +66,9 @@
 ## v1.5 — Auth social y cuentas
 - [ ] Google OAuth funcional (hoy es un contrato de UI deshabilitado).
 - [ ] Vinculación de cuenta email/password ↔ Google.
-- [ ] Pantalla de "Dispositivos" para ver/revocar passkeys registradas
-      (el backend ya expone `GET /api/webauthn/devices`; falta la UI y el
-      endpoint de borrado).
+- [x] Ver/revocar passkeys registradas: `DELETE /api/webauthn/devices/:id`
+      y una lista simple en Configuración (`BiometricDevicesList.tsx`) con
+      botón "Quitar" por dispositivo.
 
 ## v1.6 — Mobile nativo / PWA
 - [x] Manifest (`manifest.webmanifest`, standalone + iconos 192/512/maskable)

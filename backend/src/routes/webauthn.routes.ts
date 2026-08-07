@@ -19,6 +19,7 @@ router.post(
   webauthnController.verifyRegistration,
 );
 router.get('/devices', authMiddleware, webauthnController.listDevices);
+router.delete('/devices/:id', authMiddleware, webauthnController.revokeDevice);
 
 router.post(
   '/login/options',

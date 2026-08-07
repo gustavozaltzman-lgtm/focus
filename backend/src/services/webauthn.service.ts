@@ -15,8 +15,46 @@ import * as credentialRepo from '../repositories/webauthn.repository';
 import { AuthError, generateToken, toPublicUser } from './auth.service';
 import { PublicUser, User } from '../types/domain';
 
-const registrationChallenges = new Map<string, string>();
-const authenticationChallenges = new Map<string, string>();
+const CHALLENGE_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * Map en memoria con expiración por entrada. Sin esto, una ceremonia de
+ * registro/login abandonada a mitad de camino (usuario cierra la pestaña,
+ * cancela el prompt del navegador) dejaba el challenge en memoria para
+ * siempre — crecimiento no acotado en un proceso de larga duración.
+ */
+class TtlMap {
+  private readonly entries = new Map<string, { value: string; expiresAt: number }>();
+
+  set(key: string, value: string): void {
+    this.prune();
+    this.entries.set(key, { value, expiresAt: Date.now() + CHALLENGE_TTL_MS });
+  }
+
+  get(key: string): string | undefined {
+    const entry = this.entries.get(key);
+    if (!entry) return undefined;
+    if (entry.expiresAt <= Date.now()) {
+      this.entries.delete(key);
+      return undefined;
+    }
+    return entry.value;
+  }
+
+  delete(key: string): void {
+    this.entries.delete(key);
+  }
+
+  private prune(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.entries) {
+      if (entry.expiresAt <= now) this.entries.delete(key);
+    }
+  }
+}
+
+const registrationChallenges = new TtlMap();
+const authenticationChallenges = new TtlMap();
 
 function toAuthenticatorDevice(credential: credentialRepo.WebauthnCredential): AuthenticatorDevice {
   return {
@@ -90,15 +128,13 @@ export async function verifyRegistration(
 }
 
 export async function createAuthenticationOptions(email: string) {
-  const user = await findUserByEmail(email.toLowerCase());
-  if (!user) {
-    throw new AuthError('No hay credenciales biométricas registradas para este email', 404);
-  }
-
-  const credentials = await credentialRepo.listCredentialsForUser(user.id);
-  if (credentials.length === 0) {
-    throw new AuthError('No hay credenciales biométricas registradas para este email', 404);
-  }
+  const normalizedEmail = email.toLowerCase();
+  // Deliberadamente no distingue "el email no existe" de "existe pero no
+  // tiene biometría registrada": siempre devuelve 200 con opciones, solo que
+  // sin credenciales reales para permitir la ceremonia — así este endpoint
+  // no sirve para enumerar qué emails están registrados en la app.
+  const user = await findUserByEmail(normalizedEmail);
+  const credentials = user ? await credentialRepo.listCredentialsForUser(user.id) : [];
 
   const options = await generateAuthenticationOptions({
     rpID: env.webauthnRpId,
@@ -106,7 +142,7 @@ export async function createAuthenticationOptions(email: string) {
     allowCredentials: credentials.map((credential) => ({ id: credential.credential_id })),
   });
 
-  authenticationChallenges.set(email.toLowerCase(), options.challenge);
+  authenticationChallenges.set(normalizedEmail, options.challenge);
   return options;
 }
 
@@ -164,4 +200,9 @@ export async function listDevices(userId: string) {
     createdAt: credential.created_at,
     lastUsedAt: credential.last_used_at,
   }));
+}
+
+export async function revokeDevice(id: string, userId: string): Promise<void> {
+  const deleted = await credentialRepo.deleteCredential(id, userId);
+  if (!deleted) throw new AuthError('Device not found', 404);
 }

@@ -32,6 +32,7 @@ function toPublicUser(user: User): PublicUser {
 
 export function generateToken(user: User): string {
   return jwt.sign({ userId: user.id, email: user.email }, env.jwtSecret, {
+    algorithm: 'HS256',
     expiresIn: env.jwtExpiresIn,
   } as jwt.SignOptions);
 }

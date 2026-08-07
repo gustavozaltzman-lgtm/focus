@@ -218,7 +218,8 @@ Body: `{ "endpoint": "..." }`. 204 sin contenido.
 
 Ver [ARCHITECTURE.md](./ARCHITECTURE.md#autenticación-biométrica-webauthn):
 `GET/POST /webauthn/register/options|verify`, `GET /webauthn/devices`,
-`POST /webauthn/login/options|verify`.
+`DELETE /webauthn/devices/:id` (revoca una passkey propia; 404 si no existe
+o no es del usuario), `POST /webauthn/login/options|verify`.
 
 ## Errores
 

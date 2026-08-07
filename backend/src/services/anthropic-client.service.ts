@@ -83,11 +83,10 @@ export async function createAnthropicMessage(
     } catch (error) {
       lastError = error;
       if (!isRetryableWithAnotherKey(error)) throw error;
+      const status = error instanceof Anthropic.APIError ? error.status : 'unknown';
+      const message = error instanceof Error ? error.message : String(error);
       console.error(
-        `Anthropic key #${index + 1}/${clients.length} failed (${
-          error instanceof Anthropic.APIError ? error.status : 'unknown'
-        }), trying next key:`,
-        error,
+        `Anthropic key #${index + 1}/${clients.length} failed (${status}): ${message} — trying next key`,
       );
     }
   }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { EnableBiometricButton } from '../auth/EnableBiometricButton';
 import { EnablePushButton } from '../reminders/EnablePushButton';
 import { AnthropicKeyForm } from './AnthropicKeyForm';
+import { BiometricDevicesList } from './BiometricDevicesList';
 
 interface SettingsMenuProps {
   panelPosition?: 'up' | 'down';
@@ -65,6 +66,7 @@ export function SettingsMenu({ panelPosition = 'up', triggerClassName, compact }
           </p>
           <EnableBiometricButton className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-ink-950 transition hover:bg-mist-100" />
           <EnablePushButton className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-ink-950 transition hover:bg-mist-100" />
+          <BiometricDevicesList />
           <div className="my-1.5 border-t border-mist-100" />
           <AnthropicKeyForm />
         </div>
