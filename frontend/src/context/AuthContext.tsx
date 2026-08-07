@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import * as authApi from '../api/auth';
 import { clearToken, getToken, setLastEmail, setToken } from '../lib/storage';
 import { User } from '../types/domain';
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const token = getToken();
@@ -40,22 +42,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(user),
       login: async (email, password) => {
         const result = await authApi.login(email, password);
+        queryClient.clear();
         setToken(result.token);
         setLastEmail(result.user.email);
         setUser(result.user);
       },
       register: async (email, password, fullName) => {
         const result = await authApi.register(email, password, fullName);
+        queryClient.clear();
         setToken(result.token);
         setLastEmail(result.user.email);
         setUser(result.user);
       },
       loginWithSession: (nextUser, token) => {
+        queryClient.clear();
         setToken(token);
         setLastEmail(nextUser.email);
         setUser(nextUser);
       },
       logout: () => {
+        queryClient.clear();
         clearToken();
         setUser(null);
       },
