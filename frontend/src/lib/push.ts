@@ -15,6 +15,20 @@ export function isPushSupported(): boolean {
   return typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window;
 }
 
+/** Lectura pura: no pide permiso ni crea nada, solo mira si ya hay una
+    suscripción de push activa en este navegador/dispositivo. */
+export async function hasActivePushSubscription(): Promise<boolean> {
+  if (!isPushSupported()) return false;
+  try {
+    const registration = await navigator.serviceWorker.getRegistration('/sw.js');
+    if (!registration) return false;
+    const subscription = await registration.pushManager.getSubscription();
+    return subscription !== null;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Registrado incondicionalmente al cargar la app (ver main.tsx): un
  * service worker activo es requisito para que el navegador ofrezca

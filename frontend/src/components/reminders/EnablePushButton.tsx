@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { enablePushNotifications, isPushSupported } from '../../lib/push';
+import { enablePushNotifications, hasActivePushSubscription, isPushSupported } from '../../lib/push';
 
 type Status = 'idle' | 'working' | 'done' | 'error';
 
@@ -11,6 +11,13 @@ export function EnablePushButton({ className }: { className?: string }) {
   useEffect(() => {
     setSupported(isPushSupported());
   }, []);
+
+  useEffect(() => {
+    if (!supported) return;
+    hasActivePushSubscription().then((active) => {
+      if (active) setStatus('done');
+    });
+  }, [supported]);
 
   if (!supported) return null;
 
