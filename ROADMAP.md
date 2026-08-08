@@ -181,7 +181,26 @@ los hallazgos, de Alta a Baja, resueltos el mismo día:
       (`--c-*` en `index.css`) en vez de hex fijos — ver
       [ARCHITECTURE.md](./ARCHITECTURE.md#tema-claridad-y-oscuro-theme).
 
+## v1.12 — Gestos e ideas de ThisDay (hecho)
+Inspirado en un reel de Instagram con capturas de la app "ThisDay" —
+filtrado a lo que encaja con el ángulo de Focus (herramienta de trabajo, no
+diario/hábitos personal):
+- [x] Swipe en las filas de tarea, al estilo Gmail: deslizar a la derecha
+      completa (fondo verde, mismo check animado del checkbox), deslizar a
+      la izquierda borra directo (fondo rojo) — sin confirmación extra, la
+      distancia del gesto ya es la señal de intención. El drag nativo HTML5
+      para mover una tarea a otro contexto (desktop) sigue intacto, en un
+      contenedor separado del gesto de swipe.
+- [x] "Foco de hoy" muestra "X de Y completadas · libre desde las HH:MM" —
+      la hora del último compromiso agendado del día.
+- Descartado por no encajar con el producto: auto-track de hábitos vía
+  wearables, "momentos" (foto diaria/recap), landing con mockup interactivo.
+
 ## Ideas en evaluación (sin comprometer)
-- Atajos de teclado estilo Things 3 / Linear (⌘K, captura global).
+- Atajos de teclado estilo Things 3 / Linear (⌘K, captura global) — sigue
+  pendiente; el mismo reel de ThisDay lo confirma como un patrón esperado
+  en la versión de escritorio.
+- Captura por voz (Web Speech API → mismo parser de IA que ya existe, no un
+  feature nuevo de audio/notas de voz).
 - Modo offline con sincronización diferida.
 - App móvil (React Native) reutilizando `api/` y `types/`.

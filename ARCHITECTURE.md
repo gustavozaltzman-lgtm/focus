@@ -230,6 +230,18 @@ Backend API
   botones Completar/Más tarde/Editar/Anterior. `SuggestNextButton` puede
   alimentarlo con la selección de `suggestNextTasks` en vez de la cola
   completa.
+- `TaskRow.tsx` — swipe estilo Gmail (derecha completa, izquierda borra sin
+  confirmación) sobre una capa de fondo `absolute inset-0` con el color de
+  cada acción, revelada al deslizar. El `drag="x"` de framer-motion vive en
+  un `motion.div` **interior**, nunca en el `div` exterior que tiene el
+  atributo `draggable` nativo (usado para arrastrar la tarea a otro
+  contexto en desktop) — combinarlos en el mismo elemento hace que framer
+  intercepte `dragstart` con su propio sistema de gestos (mismo cuidado que
+  el `drag="x"` de `FocusModeModal` arriba).
+- "Foco de hoy" (`DashboardPage.tsx`) resume el día: "X de Y completadas ·
+  libre desde las HH:MM", donde esa hora es la del último `scheduled_time`
+  del día — un punto de partida, no el fin real (las tareas no tienen
+  duración en el modelo de datos).
 - Configuración: las activaciones por dispositivo (Face ID/huella, alarmas
   push) viven detrás de un único botón "Configuración"
   (`layout/SettingsMenu.tsx`), no sueltas en el sidebar/header.
