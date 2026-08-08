@@ -77,8 +77,9 @@ export function TaskRow({
 
       <motion.div
         drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.85}
+        dragConstraints={{ left: -SWIPE_THRESHOLD - 40, right: SWIPE_THRESHOLD + 40 }}
+        dragElastic={0.15}
+        dragSnapToOrigin
         onDragEnd={handleSwipeEnd}
         className="group flex animate-fade-in-up items-center gap-3 border-b border-mist-100 bg-surface py-2 pl-3 pr-1 last:border-b-0"
         style={{ boxShadow: `inset 3px 0 0 0 ${edgeColor}` }}
