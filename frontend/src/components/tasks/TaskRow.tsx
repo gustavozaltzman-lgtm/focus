@@ -19,6 +19,16 @@ interface TaskRowProps {
 const SWIPE_THRESHOLD = 88;
 const SWIPE_MAX = 140;
 
+// Android Chrome (a diferencia de iOS Safari) sí soporta arrastre nativo por
+// touch en elementos `draggable`. Eso competía con el swipe-to-act: el
+// gesto táctil quedaba capturado por el sistema de drag nativo del
+// navegador antes de llegar a los manejadores de puntero de abajo. El drag
+// nativo (mover una tarea a otro contexto) es una función solo de
+// desktop/mouse igual, así que en touch se desactiva directamente.
+const IS_TOUCH_DEVICE =
+  typeof window !== 'undefined' &&
+  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
 export function TaskRow({
   task,
   context,
@@ -45,6 +55,10 @@ export function TaskRow({
     startXRef.current = event.clientX;
     pointerIdRef.current = event.pointerId;
     setIsSwiping(true);
+    // Garantiza que sigamos recibiendo pointermove de este puntero aunque el
+    // dedo se desvíe un poco verticalmente y salga del rectángulo de la fila
+    // (fácil que pase en un swipe real, filas de ~58px de alto).
+    event.currentTarget.setPointerCapture(event.pointerId);
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
@@ -67,7 +81,7 @@ export function TaskRow({
 
   return (
     <div
-      draggable
+      draggable={!IS_TOUCH_DEVICE}
       onDragStart={(event) => {
         event.dataTransfer.setData(TASK_DRAG_MIME, task.id);
         event.dataTransfer.effectAllowed = 'move';
