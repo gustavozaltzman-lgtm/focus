@@ -17,7 +17,7 @@ export function Sidebar() {
   const updateTask = useUpdateTask();
 
   return (
-    <aside className="hidden h-full w-64 shrink-0 flex-col justify-between border-r border-mist-200 bg-white px-4 py-6 md:flex">
+    <aside className="hidden h-full w-64 shrink-0 flex-col justify-between border-r border-mist-200 bg-surface px-4 py-6 md:flex">
       <div>
         <div className="mb-8 px-2">
           <p className="text-xl font-bold tracking-tight text-ink-950">Focus</p>

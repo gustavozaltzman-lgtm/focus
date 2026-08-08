@@ -1,6 +1,11 @@
 /** @type {import('tailwindcss').Config} */
+function themedColor(name) {
+  return `rgb(var(--c-${name}) / <alpha-value>)`;
+}
+
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -15,34 +20,43 @@ export default {
         mono: ['"IBM Plex Mono"', '"SF Mono"', 'ui-monospace', 'monospace'],
       },
       colors: {
+        // Tokens below read from CSS custom properties (see index.css) so
+        // every existing bg-x/text-x/border-x class repaints automatically
+        // for the `.dark` theme, without touching each component.
         ink: {
-          950: '#2C3E50',
+          950: themedColor('ink-950'),
+          // 900-600 are unused in the app today; kept static since they
+          // never needed a dark-mode value.
           900: '#34495E',
           800: '#3E5871',
           700: '#4B6584',
           600: '#64798E',
         },
         mist: {
-          50: '#FAFAFA',
-          100: '#F0F0EF',
-          200: '#E2E1DE',
-          300: '#CBC9C4',
-          400: '#94918A',
-          500: '#68655F',
+          50: themedColor('mist-50'),
+          100: themedColor('mist-100'),
+          200: themedColor('mist-200'),
+          300: themedColor('mist-300'),
+          400: themedColor('mist-400'),
+          500: themedColor('mist-500'),
         },
-        paper: '#FAFAFA',
+        paper: themedColor('paper'),
+        surface: themedColor('surface'),
+        // Always-dark, theme-independent: modal backdrops and the "press to
+        // near-black" button hover — never meant to invert in dark mode.
+        scrim: '#1E2833',
         signal: {
-          DEFAULT: '#FF6B6B',
-          soft: '#FFECEC',
-          light: '#FF9494',
+          DEFAULT: themedColor('signal'),
+          soft: themedColor('signal-soft'),
+          light: themedColor('signal-light'),
         },
         sun: {
-          DEFAULT: '#FFD166',
-          dark: '#B8860B',
+          DEFAULT: themedColor('sun'),
+          dark: themedColor('sun-dark'),
         },
-        urgent: '#E63946',
-        warn: '#E0A63A',
-        calm: '#27AE60',
+        urgent: themedColor('urgent'),
+        warn: themedColor('warn'),
+        calm: themedColor('calm'),
       },
       borderRadius: {
         xl2: '1.25rem',

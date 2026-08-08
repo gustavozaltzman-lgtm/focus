@@ -209,14 +209,15 @@ Backend API
   serif), `IBM Plex Mono` para todo dato cuantitativo (fechas, horas,
   contadores) — la clase utilitaria `.figures` marca esta convención en todo
   el código.
-- Color ("Dopamina & Energía", `tailwind.config.js`): fondo `paper` (`#FAFAFA`)
-  en todas las superficies, incluido el sidebar y el login — no hay ninguna
-  pantalla con fondo oscuro. Acento primario `signal` (coral `#FF6B6B`,
-  botones/dots/glow), `sun` (amarillo `#FFD166`, prioridad media), `calm`
+- Color ("Dopamina & Energía", `tailwind.config.js`): fondo `paper` en todas
+  las superficies, incluido el sidebar y el login. Acento primario `signal`
+  (coral, botones/dots/glow), `sun` (amarillo, prioridad media), `calm`
   (esmeralda, completadas), `urgent` (rojo cálido, prioridad alta/errores),
-  texto principal `ink-950` (navy `#2C3E50`, no negro puro). Un color de
-  contexto por fila de tarea (`box-shadow` inset de 3px en el borde izquierdo),
-  elegido por el usuario de una paleta fija en `ContextFormModal`.
+  texto principal `ink-950` (navy en claro, casi blanco en oscuro — nunca
+  negro/blanco puro). Un color de contexto por fila de tarea (`box-shadow`
+  inset de 3px en el borde izquierdo), elegido por el usuario de una paleta
+  fija en `ContextFormModal` — ese color no cambia con el tema, es del
+  usuario, no del sistema.
 - Movimiento: `framer-motion` para transiciones con intención (entrada en
   cascada de `TaskRow`, bounce del check al completar, modales que escalan al
   abrir) — nunca en el contenedor `draggable` de `TaskRow` para no chocar con
@@ -232,6 +233,33 @@ Backend API
 - Configuración: las activaciones por dispositivo (Face ID/huella, alarmas
   push) viven detrás de un único botón "Configuración"
   (`layout/SettingsMenu.tsx`), no sueltas en el sidebar/header.
+
+#### Tema: claridad y oscuro (theme)
+
+Toda la paleta (`ink-950`, `mist-50`…`500`, `paper`, `surface`, `signal`,
+`sun`, `urgent`, `warn`, `calm`) se define como variables CSS
+(`--c-*`, triples RGB para que sigan funcionando los modificadores de
+opacidad de Tailwind, ej. `bg-paper/50`) en `:root` (claro) y bajo `.dark`
+(oscuro) en `index.css`. `tailwind.config.js` apunta cada color a
+`rgb(var(--c-x) / <alpha-value>)` en vez de un hex fijo — por eso ningún
+componente necesitó tocarse: `bg-paper`, `text-ink-950`, `border-mist-200`,
+etc. repintan solos apenas cambia la clase `.dark` en `<html>`.
+
+Dos colores quedan **fuera** de ese sistema a propósito, porque su trabajo es
+verse siempre oscuros sin importar el tema (el fondo detrás de un modal, el
+estado "presionado" del botón primario) — invertirlos con el tema los
+volvería casi blancos y rompería el efecto:
+- `scrim` (`#1E2833` fijo): backdrop de `Modal.tsx` y `hover:bg-scrim` de
+  `.focus-btn-primary`.
+- El color de contexto por tarea (elegido por el usuario, ver arriba).
+
+`ThemeContext.tsx` guarda la preferencia (`light`/`dark`) en `localStorage`
+(`focus_theme`); sin preferencia guardada, arranca según
+`prefers-color-scheme` del sistema operativo. `applyTheme()` se llama de
+forma síncrona en `main.tsx` *antes* del primer render de React —si se
+hiciera solo desde un `useEffect` del provider, se vería un flash del tema
+equivocado durante un frame. El toggle vive en `Configuración → Apariencia`
+(`ThemeToggle.tsx`).
 - Mobile: `AppShell` oculta el `Sidebar` (`hidden md:flex`) y muestra
   `MobileHeader` + `MobileTabBar` (`md:hidden`) por debajo de 768px. El resto
   de las páginas usan grids/paddings responsive (`sm:`/`md:`) en vez de

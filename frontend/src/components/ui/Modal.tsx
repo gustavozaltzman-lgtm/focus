@@ -21,7 +21,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.15 }}
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-950/50 px-4 py-6 backdrop-blur-sm sm:items-center sm:py-10"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-scrim/50 px-4 py-6 backdrop-blur-sm sm:items-center sm:py-10"
     >
       <button
         aria-label="Cerrar"
@@ -36,7 +36,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative flex max-h-full w-full max-w-md flex-col rounded-xl2 border border-mist-200 bg-white shadow-lifted"
+        className="relative flex max-h-full w-full max-w-md flex-col rounded-xl2 border border-mist-200 bg-surface shadow-lifted"
       >
         <div className="flex shrink-0 items-center justify-between p-6 pb-4">
           <h2 className="text-lg font-semibold tracking-tight text-ink-950">{title}</h2>

@@ -169,9 +169,19 @@ los hallazgos, de Alta a Baja, resueltos el mismo día:
 - [x] Botones "¿Qué hago ahora?" (coral) y "Completar" en Modo enfoque
       (verde) con su propio color en vez del gris "ghost" genérico.
 
+## v1.11 — Modo oscuro (hecho)
+- [x] Ícono de Configuración: era un círculo con 8 rayos (se confundía con
+      un sol) — ahora es un engranaje de verdad.
+- [x] Toggle día/noche en Configuración (`ThemeToggle.tsx`, reutiliza el
+      ícono de sol que quedó libre + uno de luna). Persistente
+      (`localStorage`), arranca en el tema del sistema operativo la primera
+      vez, se aplica antes del primer render para no parpadear.
+- [x] Paleta completa con variante oscura: toda la app (no solo un par de
+      pantallas) repinta sola porque los colores son variables CSS
+      (`--c-*` en `index.css`) en vez de hex fijos — ver
+      [ARCHITECTURE.md](./ARCHITECTURE.md#tema-claridad-y-oscuro-theme).
+
 ## Ideas en evaluación (sin comprometer)
 - Atajos de teclado estilo Things 3 / Linear (⌘K, captura global).
 - Modo offline con sincronización diferida.
 - App móvil (React Native) reutilizando `api/` y `types/`.
-- Modo oscuro real con theme toggle (hoy toda la app es clara por diseño,
-  sin alternancia).

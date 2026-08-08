@@ -141,7 +141,7 @@ export function FocusModeModal({ tasks, contexts, onClose }: FocusModeModalProps
               dragElastic={0.7}
               whileDrag={{ scale: 1.02 }}
               onDragEnd={handleDragEnd}
-              className="cursor-grab touch-pan-y rounded-xl2 border border-mist-200 bg-white p-5 active:cursor-grabbing"
+              className="cursor-grab touch-pan-y rounded-xl2 border border-mist-200 bg-surface p-5 active:cursor-grabbing"
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">

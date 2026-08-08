@@ -3,6 +3,50 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Light theme (default) — space-separated RGB so Tailwind's opacity
+       modifiers (bg-paper/50, etc.) keep working. */
+    --c-ink-950: 44 62 80;
+    --c-mist-50: 250 250 250;
+    --c-mist-100: 240 240 239;
+    --c-mist-200: 226 225 222;
+    --c-mist-300: 203 201 196;
+    --c-mist-400: 148 145 138;
+    --c-mist-500: 104 101 95;
+    --c-paper: 250 250 250;
+    --c-surface: 255 255 255;
+    --c-signal: 255 107 107;
+    --c-signal-soft: 255 236 236;
+    --c-signal-light: 255 148 148;
+    --c-sun: 255 209 102;
+    --c-sun-dark: 184 134 11;
+    --c-urgent: 230 57 70;
+    --c-warn: 224 166 58;
+    --c-calm: 39 174 96;
+  }
+
+  .dark {
+    /* Same hierarchy, same accent hues — just re-pointed at a dark ground,
+       not a naive invert. Text/border contrast checked against --c-paper. */
+    --c-ink-950: 237 239 242;
+    --c-mist-50: 20 23 28;
+    --c-mist-100: 36 42 52;
+    --c-mist-200: 43 48 58;
+    --c-mist-300: 58 64 73;
+    --c-mist-400: 122 129 140;
+    --c-mist-500: 168 176 189;
+    --c-paper: 20 23 28;
+    --c-surface: 27 31 38;
+    --c-signal: 255 128 128;
+    --c-signal-soft: 58 35 35;
+    --c-signal-light: 255 163 163;
+    --c-sun: 255 209 102;
+    --c-sun-dark: 255 226 158;
+    --c-urgent: 255 107 118;
+    --c-warn: 230 179 94;
+    --c-calm: 61 203 124;
+  }
+
   html,
   body,
   #root {
@@ -10,11 +54,12 @@
   }
 
   body {
-    background-color: #fafafa;
+    background-color: rgb(var(--c-paper));
     background-image:
-      radial-gradient(1200px 600px at 15% -10%, rgba(255, 107, 107, 0.08), transparent 60%),
-      radial-gradient(900px 500px at 100% 0%, rgba(255, 209, 102, 0.09), transparent 55%);
+      radial-gradient(1200px 600px at 15% -10%, rgb(var(--c-signal) / 0.08), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgb(var(--c-sun) / 0.09), transparent 55%);
     background-attachment: fixed;
+    transition: background-color 0.2s ease;
   }
 
   ::selection {
@@ -36,11 +81,11 @@
   }
 
   .focus-input {
-    @apply w-full rounded-lg border border-mist-200 bg-white px-4 py-3 text-[15px] text-ink-950 placeholder:text-mist-400 outline-none transition focus:border-signal focus:ring-4 focus:ring-signal-soft;
+    @apply w-full rounded-lg border border-mist-200 bg-surface px-4 py-3 text-[15px] text-ink-950 placeholder:text-mist-400 outline-none transition focus:border-signal focus:ring-4 focus:ring-signal-soft;
   }
 
   .focus-card {
-    @apply rounded-xl2 border border-mist-200 bg-white shadow-soft transition-shadow duration-300;
+    @apply rounded-xl2 border border-mist-200 bg-surface shadow-soft transition-shadow duration-300;
   }
 
   .focus-card-interactive {
@@ -48,7 +93,7 @@
   }
 
   .focus-btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-signal px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-ink-950 hover:shadow-glow active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:opacity-40 disabled:shadow-none;
+    @apply inline-flex items-center justify-center rounded-lg bg-signal px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-scrim hover:shadow-glow active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:opacity-40 disabled:shadow-none;
   }
 
   .focus-btn-ghost {

@@ -3,6 +3,7 @@ import { EnableBiometricButton } from '../auth/EnableBiometricButton';
 import { EnablePushButton } from '../reminders/EnablePushButton';
 import { AnthropicKeyForm } from './AnthropicKeyForm';
 import { BiometricDevicesList } from './BiometricDevicesList';
+import { ThemeToggle } from './ThemeToggle';
 
 interface SettingsMenuProps {
   panelPosition?: 'up' | 'down';
@@ -46,10 +47,10 @@ export function SettingsMenu({ panelPosition = 'up', triggerClassName, compact }
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.6" />
           <path
-            d="M12 3v2.5M12 18.5V21M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M3 12h2.5M18.5 12H21M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"
             stroke="currentColor"
             strokeWidth="1.6"
-            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
         {!compact && 'Configuración'}
@@ -57,10 +58,15 @@ export function SettingsMenu({ panelPosition = 'up', triggerClassName, compact }
 
       {open && (
         <div
-          className={`absolute z-30 w-72 rounded-xl2 border border-mist-200 bg-white p-2 shadow-lifted ${
+          className={`absolute z-30 w-72 rounded-xl2 border border-mist-200 bg-surface p-2 shadow-lifted ${
             panelPosition === 'up' ? 'bottom-full left-0 mb-2' : 'right-0 top-full mt-2'
           }`}
         >
+          <p className="px-2 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-widest text-mist-400">
+            Apariencia
+          </p>
+          <ThemeToggle />
+          <div className="my-1.5 border-t border-mist-100" />
           <p className="px-2 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-widest text-mist-400">
             Dispositivo
           </p>
