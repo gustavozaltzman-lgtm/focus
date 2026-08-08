@@ -1,39 +1,18 @@
-import { useEffect, useState } from 'react';
-import * as webauthnApi from '../../api/webauthn';
+import { useBiometricDevices, useRevokeDevice } from '../../hooks/useWebauthn';
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export function BiometricDevicesList() {
-  const [devices, setDevices] = useState<webauthnApi.WebauthnDevice[] | null>(null);
-  const [removingId, setRemovingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    webauthnApi
-      .fetchDevices()
-      .then(setDevices)
-      .catch(() => setDevices([]));
-  }, []);
-
-  async function handleRevoke(id: string) {
-    setRemovingId(id);
-    try {
-      await webauthnApi.revokeDevice(id);
-      setDevices((current) => current?.filter((d) => d.id !== id) ?? null);
-    } finally {
-      setRemovingId(null);
-    }
-  }
+  const { data: devices } = useBiometricDevices();
+  const revokeDevice = useRevokeDevice();
 
   if (!devices || devices.length === 0) return null;
 
   return (
-    <div className="px-2 py-1.5">
-      <p className="pb-1 text-[11px] font-semibold uppercase tracking-widest text-mist-400">
-        Dispositivos con biometría
-      </p>
-      <ul className="flex flex-col gap-1">
+    <div className="pl-[1.9rem] pr-2 pt-1">
+      <ul className="flex flex-col gap-1 border-l border-mist-100 pl-3">
         {devices.map((device) => (
           <li key={device.id} className="flex items-center justify-between gap-2 text-xs">
             <span className="min-w-0 truncate text-mist-500">
@@ -41,8 +20,8 @@ export function BiometricDevicesList() {
             </span>
             <button
               type="button"
-              onClick={() => handleRevoke(device.id)}
-              disabled={removingId === device.id}
+              onClick={() => revokeDevice.mutate(device.id)}
+              disabled={revokeDevice.isPending && revokeDevice.variables === device.id}
               className="shrink-0 rounded-md px-1.5 py-1 font-medium text-urgent transition hover:bg-mist-100 disabled:opacity-50"
             >
               Quitar

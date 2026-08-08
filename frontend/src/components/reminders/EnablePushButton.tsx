@@ -40,10 +40,19 @@ export function EnablePushButton({ className }: { className?: string }) {
       disabled={status === 'working' || status === 'done'}
       className={
         className ??
-        'w-full rounded-lg px-2 py-1.5 text-left text-xs font-medium text-mist-500 transition hover:bg-mist-100 hover:text-ink-950 disabled:opacity-60'
+        'flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left text-sm font-medium text-ink-950 transition hover:bg-mist-100 disabled:opacity-60'
       }
     >
-      {label}
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" className="shrink-0 text-mist-400">
+        <path
+          d="M18 8a6 6 0 0 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14 18 8Z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        <path d="M10 19.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+      <span className="min-w-0 flex-1 truncate">{label}</span>
     </button>
   );
 }

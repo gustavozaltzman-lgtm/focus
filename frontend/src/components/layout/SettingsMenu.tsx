@@ -11,6 +11,15 @@ interface SettingsMenuProps {
   compact?: boolean;
 }
 
+function SectionHeader({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="flex items-center gap-1.5 px-2 pb-1 pt-2.5 first:pt-1">
+      <span className="flex h-4 w-4 shrink-0 items-center justify-center text-mist-400">{icon}</span>
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-mist-400">{label}</p>
+    </div>
+  );
+}
+
 export function SettingsMenu({ panelPosition = 'up', triggerClassName, compact }: SettingsMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -58,22 +67,59 @@ export function SettingsMenu({ panelPosition = 'up', triggerClassName, compact }
 
       {open && (
         <div
-          className={`absolute z-30 w-72 rounded-xl2 border border-mist-200 bg-surface p-2 shadow-lifted ${
+          className={`absolute z-30 w-80 rounded-xl2 border border-mist-200 bg-surface p-2 shadow-lifted ${
             panelPosition === 'up' ? 'bottom-full left-0 mb-2' : 'right-0 top-full mt-2'
           }`}
         >
-          <p className="px-2 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-widest text-mist-400">
-            Apariencia
-          </p>
+          <SectionHeader
+            label="Apariencia"
+            icon={
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.6" />
+                <path
+                  d="M12 2.5v2.5M12 19v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2.5 12H5M19 12h2.5M4.2 19.8 6 18M18 6l1.8-1.8"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                />
+              </svg>
+            }
+          />
           <ThemeToggle />
-          <div className="my-1.5 border-t border-mist-100" />
-          <p className="px-2 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-widest text-mist-400">
-            Dispositivo
+
+          <SectionHeader
+            label="Seguridad y notificaciones"
+            icon={
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 3.5 4.5 6.5v5c0 4.4 3.2 7.6 7.5 9 4.3-1.4 7.5-4.6 7.5-9v-5L12 3.5Z"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            }
+          />
+          <p className="px-2 pb-1.5 text-[11px] leading-snug text-mist-400">
+            Activá cada una desde el dispositivo donde las querés usar.
           </p>
-          <EnableBiometricButton className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-ink-950 transition hover:bg-mist-100" />
-          <EnablePushButton className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-ink-950 transition hover:bg-mist-100" />
+          <EnableBiometricButton />
           <BiometricDevicesList />
-          <div className="my-1.5 border-t border-mist-100" />
+          <EnablePushButton />
+
+          <SectionHeader
+            label="Inteligencia artificial"
+            icon={
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            }
+          />
           <AnthropicKeyForm />
         </div>
       )}

@@ -44,11 +44,7 @@ export function AnthropicKeyForm() {
   }
 
   return (
-    <div className="px-2 py-1.5">
-      <p className="pb-1 text-[11px] font-semibold uppercase tracking-widest text-mist-400">
-        Tu API key de Anthropic
-      </p>
-
+    <div className="px-2 py-1">
       {!editing && (
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs text-mist-500">
