@@ -1,4 +1,5 @@
-import { AnimatePresence, motion, PanInfo } from 'framer-motion';
+import { PointerEvent as ReactPointerEvent, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Context, Task } from '../../types/domain';
 import { PriorityDot } from '../ui/PriorityDot';
 import { ContextChip } from '../ui/ContextChip';
@@ -16,6 +17,7 @@ interface TaskRowProps {
 }
 
 const SWIPE_THRESHOLD = 88;
+const SWIPE_MAX = 140;
 
 export function TaskRow({
   task,
@@ -29,12 +31,38 @@ export function TaskRow({
   const isCompleted = task.status === 'completed';
   const edgeColor = context?.color_hex ?? '#D2CDC0';
 
-  function handleSwipeEnd(_event: unknown, info: PanInfo) {
-    if (info.offset.x >= SWIPE_THRESHOLD) {
+  // Swipe implementado a mano con Pointer Events (en vez del `drag` de
+  // framer-motion): así el desplazamiento visual sigue al dedo 1:1, sin la
+  // amortiguación elástica interna de framer que hacía que la fila casi no
+  // se moviera aunque el gesto igual disparara la acción.
+  const [swipeX, setSwipeX] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const startXRef = useRef(0);
+  const pointerIdRef = useRef<number | null>(null);
+
+  function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    startXRef.current = event.clientX;
+    pointerIdRef.current = event.pointerId;
+    setIsSwiping(true);
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (pointerIdRef.current !== event.pointerId) return;
+    const delta = event.clientX - startXRef.current;
+    setSwipeX(Math.max(-SWIPE_MAX, Math.min(SWIPE_MAX, delta)));
+  }
+
+  function endSwipe(event: ReactPointerEvent<HTMLDivElement>) {
+    if (pointerIdRef.current !== event.pointerId) return;
+    pointerIdRef.current = null;
+    setIsSwiping(false);
+    if (swipeX >= SWIPE_THRESHOLD) {
       onToggleComplete(task);
-    } else if (info.offset.x <= -SWIPE_THRESHOLD) {
+    } else if (swipeX <= -SWIPE_THRESHOLD) {
       onDelete(task);
     }
+    setSwipeX(0);
   }
 
   return (
@@ -75,14 +103,18 @@ export function TaskRow({
         </div>
       </div>
 
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: -SWIPE_THRESHOLD - 40, right: SWIPE_THRESHOLD + 40 }}
-        dragElastic={0.15}
-        dragSnapToOrigin
-        onDragEnd={handleSwipeEnd}
+      <div
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endSwipe}
+        onPointerCancel={endSwipe}
         className="group flex animate-fade-in-up items-center gap-3 border-b border-mist-100 bg-surface py-2 pl-3 pr-1 last:border-b-0"
-        style={{ boxShadow: `inset 3px 0 0 0 ${edgeColor}` }}
+        style={{
+          boxShadow: `inset 3px 0 0 0 ${edgeColor}`,
+          transform: swipeX !== 0 ? `translateX(${swipeX}px)` : undefined,
+          transition: isSwiping ? 'none' : 'transform 200ms ease-out',
+          touchAction: 'pan-y',
+        }}
       >
         <button
           onClick={() => onToggleComplete(task)}
@@ -143,7 +175,7 @@ export function TaskRow({
           {context && !hideContextChip && <ContextChip name={context.name} colorHex={context.color_hex} />}
           <PriorityDot priority={task.priority} />
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
