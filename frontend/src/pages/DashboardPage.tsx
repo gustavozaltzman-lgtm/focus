@@ -23,6 +23,15 @@ function capitalizeFirst(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+/** Hora del último compromiso agendado de hoy — no conocemos cuánto dura
+    cada tarea, así que "libre desde" es el punto de partida de la última,
+    no el final real de tu día. */
+function latestScheduledTime(tasks: { scheduled_time: string | null }[]): string | null {
+  const times = tasks.map((t) => t.scheduled_time).filter((t): t is string => Boolean(t));
+  if (times.length === 0) return null;
+  return times.reduce((latest, t) => (t > latest ? t : latest)).slice(0, 5);
+}
+
 export function DashboardPage() {
   const { user } = useAuth();
   const { data: summary, isLoading } = useDashboard();
@@ -30,10 +39,11 @@ export function DashboardPage() {
   const firstName = user?.full_name?.split(' ')[0] ?? '';
   const [focusMode, setFocusMode] = useState(false);
 
-  const todayGroups = groupByContext(summary?.todayTasks ?? [], contexts);
-  const pendingTasks = sortByDate(
-    (summary?.todayTasks ?? []).filter((t) => t.status !== 'completed'),
-  );
+  const todayTasks = summary?.todayTasks ?? [];
+  const todayGroups = groupByContext(todayTasks, contexts);
+  const pendingTasks = sortByDate(todayTasks.filter((t) => t.status !== 'completed'));
+  const completedCount = todayTasks.filter((t) => t.status === 'completed').length;
+  const freeAfter = latestScheduledTime(todayTasks);
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -59,9 +69,17 @@ export function DashboardPage() {
 
       <div>
         <div className="mb-2 flex flex-col gap-2 sm:mb-1.5 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-mist-400">
-            Foco de hoy
-          </h2>
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-mist-400">
+              Foco de hoy
+            </h2>
+            {todayTasks.length > 0 && (
+              <p className="figures mt-0.5 text-[11px] text-mist-400">
+                {completedCount} de {todayTasks.length} completadas
+                {freeAfter && ` · libre desde las ${freeAfter}`}
+              </p>
+            )}
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             {pendingTasks.length > 0 && <SuggestNextButton contexts={contexts} />}
             {pendingTasks.length > 0 && (
