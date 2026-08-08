@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Context, Task } from '../../types/domain';
-import { useCompleteTask, useDeleteTask } from '../../hooks/useTasks';
+import { useCompleteTask } from '../../hooks/useTasks';
 import { TaskRow } from './TaskRow';
 import { TaskFormModal } from './TaskFormModal';
 
@@ -13,7 +13,6 @@ interface TaskListProps {
 
 export function TaskList({ tasks, contexts, emptyLabel, hideContextChip }: TaskListProps) {
   const completeTask = useCompleteTask();
-  const deleteTask = useDeleteTask();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const contextById = new Map(contexts.map((context) => [context.id, context]));
 
@@ -34,7 +33,6 @@ export function TaskList({ tasks, contexts, emptyLabel, hideContextChip }: TaskL
               animationDelayMs={Math.min(index, 8) * 35}
               onToggleComplete={(t) => completeTask.mutate(t.id)}
               onEdit={setEditingTask}
-              onDelete={(t) => deleteTask.mutate(t.id)}
             />
           ))}
         </div>

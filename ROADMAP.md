@@ -185,14 +185,16 @@ los hallazgos, de Alta a Baja, resueltos el mismo día:
 Inspirado en un reel de Instagram con capturas de la app "ThisDay" —
 filtrado a lo que encaja con el ángulo de Focus (herramienta de trabajo, no
 diario/hábitos personal):
-- [x] Swipe en las filas de tarea, al estilo Gmail: deslizar a la derecha
-      completa (fondo verde, mismo check animado del checkbox), deslizar a
-      la izquierda borra directo (fondo rojo) — sin confirmación extra, la
-      distancia del gesto ya es la señal de intención. El drag nativo HTML5
-      para mover una tarea a otro contexto (desktop) sigue intacto, en un
-      contenedor separado del gesto de swipe.
 - [x] "Foco de hoy" muestra "X de Y completadas · libre desde las HH:MM" —
       la hora del último compromiso agendado del día.
+- [ ] Swipe en las filas de tarea (estilo Gmail: derecha completa, izquierda
+      borra) — implementado y revertido el mismo día. Tres intentos
+      (`drag="x"` de framer-motion, Pointer Events manuales, y desactivar
+      `draggable` nativo en touch) no funcionaron en un dispositivo Android
+      real ni con mouse en desktop, y este entorno de trabajo no tiene forma
+      de simular gestos de arrastre para depurarlo a ciegas. El tap normal
+      (checkbox para completar, editor de tarea para borrar) sigue andando
+      igual que siempre.
 - Descartado por no encajar con el producto: auto-track de hábitos vía
   wearables, "momentos" (foto diaria/recap), landing con mockup interactivo.
 
