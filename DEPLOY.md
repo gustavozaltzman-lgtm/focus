@@ -68,12 +68,19 @@
 4. Variables de entorno:
    - `VITE_API_URL` = URL pública del backend en Render + `/api`
      (ej. `https://focus-api.onrender.com/api`)
-5. Deploy. Vercel detecta cada push a la rama principal.
+5. `frontend/vercel.json` reescribe cualquier ruta a `/index.html` — sin
+   esto, entrar directo o refrescar en una ruta que no sea `/` (ej.
+   `/inbox`, `/contexts/:id`) da 404, porque Vercel busca ese path como
+   archivo estático en vez de dejar que React Router lo resuelva del
+   lado del cliente.
+6. Deploy. Vercel detecta cada push a la rama principal.
 
 ## 4. Checklist post-deploy
 
 - [ ] `GET {API_URL}/api/health` responde `{ "status": "ok" }`
 - [ ] Registro de usuario funciona end-to-end desde el frontend desplegado
+- [ ] Refrescar el navegador estando en una ruta que no sea `/` (ej.
+      `/inbox`) no da 404 (requiere `frontend/vercel.json`)
 - [ ] CORS no bloquea peticiones (verificar `CORS_ORIGIN` exacto, sin `/` final)
 - [ ] Migraciones aplicadas en la base de producción
 - [ ] `JWT_SECRET` distinto entre entornos de desarrollo y producción
